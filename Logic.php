@@ -34,9 +34,8 @@ class Logic {
         $y = ($direction == 'down') ? --$y : ($direction == 'up') ? ++$y : $y;
         if(isset($this->field[$x][$y])) {
             return $this->field[$x][$y];
-        } else {
-            return null;
-        } 
+        }
+        return null;
     }
 
     public function move($num, $direction) {
