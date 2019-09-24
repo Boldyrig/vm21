@@ -39,8 +39,12 @@ class Logic {
         return $this->field;
     }
 
-    public function move($num, $direction) {
-        $tank = $this->tanks[$num];
+    public function move($id, $direction) {
+        for ($i = 0; $i < count($this->tanks); $i++) {
+            if ($this->tanks[$i]->id == $id) {
+                $tank = $this->tanks[$i];
+            }
+        }
         $x = $tank->x;
         $y = $tank->y;
         switch ($direction) {
