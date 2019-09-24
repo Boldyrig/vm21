@@ -1,5 +1,5 @@
 <?php
-require_once('Logic.php');
+require_once('logic/Logic.php');
 
 $logic = new Logic();
 $logic->move(0, 'left');
