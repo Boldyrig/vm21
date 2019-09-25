@@ -2,7 +2,7 @@
 require_once('logic/Logic.php');
 
 $logic = new Logic();
-$logic->move(321, 'up');
+$logic->move(123, 'left');
 print_r($logic->getTanks());
 
 /* 1) игровое поле (поверхности и преграды, разрушаемость)
