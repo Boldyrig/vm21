@@ -6,7 +6,7 @@ $logic->move(111, 'down');
 $logic->move(222, 'left');
 
 print_r($logic->getTanks());
-print_r($logic->getBuildings());
+//print_r($logic->getBuildings());
 
 
 /* 1) игровое поле (поверхности и преграды, разрушаемость)

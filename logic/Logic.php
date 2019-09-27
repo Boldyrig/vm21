@@ -21,7 +21,7 @@ class Logic {
 		// add tanks
         $this->tanks = array();
 		$this->addTank(111, 5, 2);
-		$this->addTank(222, 7, 3);
+		$this->addTank(222, 6, 3);
 		// add bullet
 		$this->bullets = array();
 		$this->addBullet(11, 3, 5);
@@ -83,7 +83,7 @@ class Logic {
 		for ($i = 0; $i < count($this->buildings); $i++){
 			for ($j = 0; $j < $this->buildings[$i]->height; $j++){
 				for ($k = 0; $k < $this->buildings[$i]->width; $k++){
-					if ($x == $this->buildings[$i]->x + $k && $y == $this->buildings[$i]->y + $j){
+					if ($x == $this->buildings[$i]->x + $k && $y == $this->buildings[$i]->y - $j){
 						return $this->buildings;
 					}
 				}
@@ -114,6 +114,15 @@ class Logic {
 		for ($i = 0; $i < count($this->tanks); $i++) {
 			if ($tank->id == $this->tanks[$i]->id) {
 				array_splice($this->tanks, $i, 1);	
+			}
+		}
+	}
+
+	private function raiseObject($object, $tank){
+		$tank->loot[] = $object;
+		for ($i = 0; $i < count($this->objects); $i++){
+			if ($this->objects[$i]->id == $object->id){
+				array_splice($this->objects, $i, 1);
 			}
 		}
 	}
@@ -156,7 +165,6 @@ class Logic {
 			}
 
 			// check tank
-			//print_r($this->checkBuilding($x, $y));
 			if ($this->field[$y][$x] > 0 || $this->checkTank($x, $y) || $this->checkBuilding($x, $y)) {
 				return false;
 			}
@@ -165,6 +173,9 @@ class Logic {
 			if ($this->checkBullet($x, $y)){
 				$this->killTank($tank);
 				return false;
+			}
+			if($obj = $this->checkObject($x, $y)){
+				$this->raiseObject($obj, $tank);
 			}
 
 			$tank->x = $x;
