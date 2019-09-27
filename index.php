@@ -2,10 +2,17 @@
 require_once('logic/Logic.php');
 
 $logic = new Logic();
-$logic->move(111, 'down');
-$logic->move(222, 'left');
+//$logic->move(111, 'down');
 
+$logic->move(111, 'right');
+$logic->move(111, 'right');
+$logic->move(111, 'down');
+$logic->move(111, 'down');
+
+
+//$logic->move(111, 'up');
 print_r($logic->getTanks());
+//print_r($logic->getObjects());
 //print_r($logic->getBuildings());
 
 

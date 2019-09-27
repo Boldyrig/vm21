@@ -8,10 +8,10 @@ class Logic {
     function __construct() {      
         // add field
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
-							 array(0, 0, 0, 0, 0, 0, 0, 1, 0, 0),
-							 array(0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
+							 array(0, 0, 0, 1, 1, 0, 0, 1, 0, 0),
+							 array(0, 0, 1, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-							 array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 0, 1, 0, 0, 0),
 							 array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -27,7 +27,10 @@ class Logic {
 		$this->addBullet(11, 3, 5);
 		// add building
 		$this->buildings = array();
-		$this->addBuilding(1, 4, 4);
+		//$this->addBuilding(1, 4, 4);
+		// add object
+		$this->objects = array();
+		$this->addObject('000', 4, 4);
 	}
 
 	private function addBuilding($id, $x, $y, $width = 2, $height = 2){
@@ -108,6 +111,14 @@ class Logic {
             }
         }
         return null;
+	}
+	
+	private function checkObject($x, $y){
+        for ($i = 0; $i < count($this->objects); $i++){
+            if ($x == $this->objects[$i]->x && $y == $this->objects[$i]->y){
+                return $this->objects[$i];
+            }
+        }
     }
 
 	private function killTank($tank) {
@@ -166,6 +177,7 @@ class Logic {
 
 			// check tank
 			if ($this->field[$y][$x] > 0 || $this->checkTank($x, $y) || $this->checkBuilding($x, $y)) {
+				echo $this->field[$y][$x];
 				return false;
 			}
 
@@ -174,6 +186,7 @@ class Logic {
 				$this->killTank($tank);
 				return false;
 			}
+			//check object
 			if($obj = $this->checkObject($x, $y)){
 				$this->raiseObject($obj, $tank);
 			}
