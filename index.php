@@ -2,8 +2,12 @@
 require_once('logic/Logic.php');
 
 $logic = new Logic();
-$logic->move(0, 'left');
+$logic->move(111, 'down');
+$logic->move(222, 'left');
+
 print_r($logic->getTanks());
+print_r($logic->getBuildings());
+
 
 /* 1) игровое поле (поверхности и преграды, разрушаемость)
    2) объекты(башни-базы заводы ящики с ресурсами)
