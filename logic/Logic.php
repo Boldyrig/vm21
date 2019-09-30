@@ -120,6 +120,53 @@ class Logic {
 		}
 	}
 
+	private function shoot($tank) {
+		for ($i = 0; $i < count($this->tanks); $i++) {
+			if ($tank->id == $this->tanks[$i]->id) {
+				$bulletId = count($this->bullets);
+				// направление пули
+				$bulletDirection = $tank->direction;
+				// начальные координаты пули
+				$coordX = $tank->x;
+				$coordY = $tank->y;
+				switch ($tank->direction) {
+					case 'up':
+						$coordY -= 1;
+						break;
+					case 'down':
+						$coordY += 1;
+						break;
+					case 'left':
+						$coordX -= 1;
+						break;
+					case 'right':
+						$coordX += 1;
+						break;
+				}
+				$this->addBullet($bulletId, $coordX, $coordY, $bulletDirection);
+			}
+		}
+	}
+
+	private function updateBullets() {
+		for ($i = 0; $i < $this->bullets; $i++) {
+			switch ($this->bullets[$i]->direction) {
+				case 'up':
+					$this->bullets[$i]->y -= $this->bullets[$i]->speed;
+					break;
+				case 'down':
+					$this->bullets[$i]->y += $this->bullets[$i]->speed;
+					break;
+				case 'left':
+					$this->bullets[$i]->x -= $this->bullets[$i]->speed;
+					break;
+				case 'right':
+					$this->bullets[$i]->y += $this->bullets[$i]->speed;
+					break;
+			}
+		}
+	}
+
 	private function killTank($tank) {
 		for ($i = 0; $i < count($this->tanks); $i++) {
 			if ($tank->id == $this->tanks[$i]->id) {
