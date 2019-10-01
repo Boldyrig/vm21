@@ -6,7 +6,7 @@ require_once('types/Object.php');
 
 class Logic {
     function __construct() {      
-        // add field
+        // создать поле
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
 							 array(0, 0, 0, 1, 1, 0, 0, 1, 0, 0),
@@ -17,23 +17,33 @@ class Logic {
 							 array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 							 array(0, 0, 0, 1, 0, 0, 0, 1, 0, 0),
 							 array(0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
-                            );
-		// add tanks
+							);
+		// создать массив с типами брони
+		$this->HULL_LIGHT = new stdClass();
+		$this->HULL_LIGHT->cargo = 10;
+		$this->HULL_LIGHT->weight = 10;
+		$this->HULL_LIGHT->hp = 20;
+		$this->HULL_TYPES = array($this->HULL_LIGHT);
+		// создать массив с типами орудий
+		$this->GUN_LIGHT = new stdClass();
+		$this->GUN_LIGHT->reloadTime = 125; // ms
+		$this->GUN_LIGHT->damage = 5;
+		$this->GUN_LIGHT->range = 10;
+		$this->GUN_TYPES = array($this->GUN_LIGHT);
+		// создать массив с танками
         $this->tanks = array();
-		$this->addTank(111, 5, 2);
-		$this->addTank(222, 6, 3);
-		// add bullet
+		$this->tanks[] = $this->createTank(111, 5, 7);
+		$this->tanks[] = $this->createTank(222, 7, 3);
+		// создать массив с пулями
 		$this->bullets = array();
-		$this->addBullet(11, 3, 5);
-		// add building
+		// создать массив с зданиями
 		$this->buildings = array();
-		//$this->addBuilding(1, 4, 4);
-		// add object
+		// создать массив с объектами
 		$this->objects = array();
-		$this->addObject('000', 4, 4);
+		$this->objects[] = $this->createObject(4, 6, 6);
 	}
 
-	private function addBuilding($id, $x, $y, $width = 2, $height = 2){
+	private function createBuilding($id, $x, $y, $width = 2, $height = 2){
 		$data = new stdClass();
 		$data->id = $id;
 		$data->x = $x;
@@ -41,20 +51,20 @@ class Logic {
 		$data->width = $width;
 		$data->height = $height;
 		$this->array = array();
-		$this->buildings[] = new Building($data);
+		return new Building($data);
 	}
 
-	private function addObject($id, $x, $y, $type = 1, $count = 1){
+	private function createObject($id, $x, $y, $type = 1, $count = 1){
 		$data = new stdClass();
 		$data->id = $id;
 		$data->x = $x;
 		$data->y = $y;
 		$data->type = $type;
 		$data->count = $count;
-		$this->objects[] = new Object($data);
+		return new Object($data);
 	}
 
-	private function addBullet($id, $x, $y, $direction = 1, $speed = 1, $type = 1, $range=10){
+	private function createBullet($id, $x, $y, $direction = 'up', $speed = 1, $type = 1, $distance = 1){
 		$data = new stdClass();
 		$data->id = $id;
 		$data->x = $x;
@@ -62,11 +72,15 @@ class Logic {
 		$data->direction = $direction;
 		$data->speed = $speed;
 		$data->type = $type;
-		$data->range = $range;
-		$this->bullets[] = new Bullet($data);
+		$data->distance = $distance; // сколько пуля пролетела
+		return new Bullet($data);
 	}
 
-	private function addTank($id, $x, $y, $team = 1, $hullType = 1, $gunType = 1, $shasshisType = 1, $direction = 'up', $reloadTime = 10, $hp = 100, $cargo = 100){
+	private function createTank($id, $x, $y, 
+								$team = 1, $hullType = 0, $gunType = 0, 
+								$shasshisType = 1, $direction = 'up', 
+								$reloadTimestamp = 0, 
+								$hp = 100, $cargo = 100, $cargoType = 1) {
 		$data = new stdClass();
 		$data->id = $id;
         $data->x = $x;
@@ -76,125 +90,214 @@ class Logic {
 		$data->gunType = $gunType;
 		$data->shassisType = $shasshisType;
 		$data->direction = $direction;
-		$data->reloadTime = $reloadTime;
+		$data->reloadTimestamp = $reloadTimestamp;
 		$data->hp = $hp;
 		$data->cargo = $cargo;
-		$this->tanks[] = new Tank($data);
+		$data->cargoType = $cargoType;
+		return new Tank($data);
 	}
 
-	private function checkBuilding($x, $y){
-		for ($i = 0; $i < count($this->buildings); $i++){
-			for ($j = 0; $j < $this->buildings[$i]->height; $j++){
-				for ($k = 0; $k < $this->buildings[$i]->width; $k++){
-					if ($x == $this->buildings[$i]->x + $k && $y == $this->buildings[$i]->y - $j){
-						return $this->buildings;
-					}
-				}
+	// взять танк по id
+	private function getTankById($id) {
+		for ($i = 0; $i < count($this->tanks); $i++) {
+			if ($this->tanks[$i]->id === $id) {
+				return $this->tanks[$i];
 			}
 		}
 		return null;
-	}	
+	}
 
-	private function checkBullet($x, $y){
-		for ($i = 0; $i < count($this->bullets); $i++){
-			if ($x == $this->bullets[$i]->x  && $y == $this->bullets[$i]->y) {
+	// взять танк по (х, у)
+    private function getTankByXY($x, $y) {
+        for ($i = 0; $i < count($this->tanks); $i++) {
+            if ($this->tanks[$i]->x === $x && $this->tanks[$i]->y === $y) {
+                return $this->tanks[$i];
+            }
+        }
+        return null;
+	}
+
+	// взять пулю по (х, у)
+	private function getBulletByXY($x, $y) {
+		for ($i = 0; $i < count($this->bullets); $i++) {
+			if ($x == $this->bullets[$i]->x && $y == $this->bullets[$i]->y) {
 				return $this->bullets[$i];
 			}
 		}
 		return null;
 	}
 
-    private function checkTank($x, $y) {
-        for ($i = 0; $i < count($this->tanks); $i++) {
-            if ($this->tanks[$i]->x == $x && $this->tanks[$i]->y == $y) {
-                return $this->tanks[$i];
-            }
-        }
-        return null;
-	}
-	
-	private function checkObject($x, $y){
-        for ($i = 0; $i < count($this->objects); $i++){
-            if ($x == $this->objects[$i]->x && $y == $this->objects[$i]->y){
+	// взять объект по (х, у)	
+	private function getObjectByXY($x, $y){
+        for ($i = 0; $i < count($this->objects); $i++) {
+            if ($x === $this->objects[$i]->x && $y === $this->objects[$i]->y) {
                 return $this->objects[$i];
             }
         }
-    }
+	}
+	
+	// проверка, находятся ли (x, y) в здании
+	private function isInnerBuilding($x, $y){
+		for ($i = 0; $i < count($this->buildings); $i++) {
+			$building = $this->buildings[$i];
+			if ($x >= $building->x && 
+				$x <= $building->x + $building->width &&
+				$y >= $building->y &&
+				$y >= $building->y + $building->height
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-	private function killTank($tank) {
+	// нанести урон object в зависимости от type
+	private function damage($object, $bullet){
+		//switch ($type) {
+			//... 
+			// $object->hp -= ...
+		//}
+	}
+
+	//вырезать танк из массипа по id
+	private function killTank($id) {
 		for ($i = 0; $i < count($this->tanks); $i++) {
-			if ($tank->id == $this->tanks[$i]->id) {
-				array_splice($this->tanks, $i, 1);	
+			if ($id == $this->tanks[$i]->id) {
+				array_splice($this->tanks, $i, 1);
+				return;
 			}
 		}
 	}
 
-	private function raiseObject($object, $tank){
-		$tank->loot[] = $object;
-		for ($i = 0; $i < count($this->objects); $i++){
-			if ($this->objects[$i]->id == $object->id){
+	//вырезать объект из массива по id
+	private function killObject($id){
+		for ($i = 0; $i < count($this->objects); $i++) {
+			if ($this->objects[$i]->id == $id) {
 				array_splice($this->objects, $i, 1);
 			}
 		}
 	}
 
-    public function getTanks(){
-        return $this->tanks;
-    }
-
-    public function getField(){
-        return $this->field;
-    }
-
-	public function getBullets() {
-		return $this->bullets;
+	// подобрать объект в танк
+	private function raiseObject($object, $tank) {
+		if ($tank->cargoType == $object->type || !$tank->cargoType){ 
+			$tank->cargoType = $object->type;
+			$cargoLeft = $this->HULL_TYPES[$tank->hullType]->cargo - $tank->cargo;
+			if ($cargoLeft >= $object->count){
+				$tank->cargo += $object->count;
+				$this->killObject($object->id);
+			} else {
+				$tank->cargo += $cargoLeft;
+				$object->count -= $cargoLeft;
+			}
+		}
 	}
 
-	public function getBuildings() {
-		return $this->buildings;
-	}
-	public function getObjects() {
-		return $this->objects;
-	}
+    public function getTanks() { return $this->tanks; }
+    public function getField() { return $this->field; }
+	public function getBullets() { return $this->bullets; }
+	public function getBuildings() { return $this->buildings; }
+	public function getObjects() { return $this->objects; }
 
-
+	// переместить танк
     public function move($id, $direction) {
-		if (isset($id)) {
-			// getTank by id
-			for ($i = 0; $i < count($this->tanks); $i++) {
-				if ($this->tanks[$i]->id == $id) {
-					$tank = $this->tanks[$i];
+		if (isset($id) && $direction) {
+			$tank = $this->getTankById($id);
+			if ($tank) {
+				$x = $tank->x;
+				$y = $tank->y;
+				switch ($direction) {
+					case 'left': $x--; break;
+					case 'right': $x++; break;
+					case 'up': $y--; break;
+					case 'down': $y++; break;
 				}
+				// проверить наличие препятствий движению
+				if ($y < 0 || $x < 0 || // если пытается уехать совсем влево или вверх
+					$y >= count($this->field) || // если пытается уехать вниз
+					$x >= count($this->field[$y]) || // если пытается уехать вправо
+					$this->field[$y][$x] > 0 || // если на пути стена
+					$this->getTankByXY($x, $y) || // если на пути танк
+					$this->isInnerBuilding($x, $y) // если на пути строение
+				) {
+					return false;
+				}
+				// если на пути пуля
+				/*if ($this->getBulletByXY($x, $y)) {
+					// заруинить здоровье и убить при случае
+					//...
+					$this->killTank($id);
+					return false;
+				}*/
+				// если на пути объект
+				$object = $this->getObjectByXY($x, $y);
+				if ($object) {
+					$this->raiseObject($object, $tank);
+				}
+				$tank->x = $x;
+				$tank->y = $y;
+				return true;
 			}
-			$x = $tank->x;
-			$y = $tank->y;
-			switch ($direction) {
-				case 'left': $x--; break;
-				case 'right': $x++; break;
-				case 'up': $y--; break;
-				case 'down': $y++; break;
-			}
+		}
+		return false;
+	}
 
-			// check tank
-			if ($this->field[$y][$x] > 0 || $this->checkTank($x, $y) || $this->checkBuilding($x, $y)) {
-				echo $this->field[$y][$x];
-				return false;
+	// выстрел (добавление пули в массив пулей)
+	public function shoot($tankId) {
+		$tank = $this->getTankById($tankId); // взять танк по id
+		if ($tank) {
+			$gun = $this->GUN_TYPES[$tank->gunType]; // взять его орудие
+			// проверить прошло ли время перезарядки
+			$currentTime = round(microtime(true) * 1000); // текущее время
+			if ($currentTime - $tank->reloadTimestamp >= $gun->reloadTime) {
+				// добавить новую пулю в массив пуль
+				//$this->bullets[] = $this->createBullet($id, $x, $y, $direction, $speed);
+				$tank->reloadTimestamp = $currentTime; // изменить время перезарядки у танка
 			}
-
-			// check bullet
-			if ($this->checkBullet($x, $y)){
-				$this->killTank($tank);
-				return false;
-			}
-			//check object
-			if($obj = $this->checkObject($x, $y)){
-				$this->raiseObject($obj, $tank);
-			}
-
-			$tank->x = $x;
-			$tank->y = $y;
 			return true;
 		}
 		return false;
+	}
+
+	//перемещение пуль
+	public function updateBullets(){
+		// идем по массиву пуль
+		for ($i = 0; $i < count($this->bullets); $i++) {
+			$bullet = $this->bullets[$i];
+			$x = $bullet->x;
+			$y = $bullet->y;
+			// по направлению пули меняем координаты на speed
+			switch ($bullet->direction) {
+				case 'left': $x -= $bullet->speed; break;
+				case 'right': $x += $bullet->speed; break;
+				case 'up': $y -= $bullet->speed; break;
+				case 'down': $y += $bullet->speed; break;
+			}
+			/*
+			...
+			проверка на range
+			...
+			*/
+			// идем по клеткам, которые пролетела пуля
+			for ($j = 0; $j < $bullet->speed; $j++) {
+				$xs = $x - $bullet->x > 0 ? $j : $x - $bullet->x < 0 ? -$j : 0;// смещение по x
+				$ys = $y - $bullet->y > 0 ? -$j : $y - $bullet->y < 0 ? $j : 0;// смещение по y
+				// если на одной из клеток стояло здание
+				if ($this->isInnerBuilding($bullet->x + $xs, $bullet->y + $ys)) {
+					//$this->damage();
+					array_splice($this->bullets, $i, 1);
+					return;
+				}
+				// если на одной из клеток стоял танк
+				$tank = $this->getTankByXY($bullet->x + $xs, $bullet->y + $ys);
+				if ($tank) {
+					$this->damage($tank, $bullet->type);
+					array_splice($this->bullets, $i, 1);
+					return;
+				}	
+			} 
+			$bullet->x = $x;
+			$bullet->y = $y;
+		}
 	}
 }
