@@ -1,14 +1,15 @@
 window.onload = () => {
 
     const server = new Server();
-    
+
     // запрос на обновление сцены
     setInterval(updateScene, 100);
     let scene;
     async function updateScene () {
         scene = await server.updateScene();
+        console.log(scene);
     }
-
+    
     document.getElementById('move').addEventListener('click', async () => {
         console.log(await server.move(1, 'left'));
     });
