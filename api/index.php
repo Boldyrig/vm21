@@ -16,7 +16,7 @@ function router($params) {
             // about game
             case 'move': return $app->move($params);
             case 'shoot': return $app->shoot($params);
-            case 'update': return $app->update($params);
+            case 'update': return $app->updateScene($params);
             default: return false;
         }
     }

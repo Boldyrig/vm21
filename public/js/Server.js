@@ -10,9 +10,17 @@ class Server {
         return (answer && answer.result == 'ok') ? answer.data : answer.error;
     }
 
+    /********************/
+    /* Про пользователя */
+    /********************/
+
     auth(login, hash, rnd) {
         return this.send('login', { login, hash, rnd });
     }
+
+    /************/
+    /* Про игру */
+    /************/
 
     move(id, direction) {
         return this.send('move', { id, direction });
@@ -20,5 +28,9 @@ class Server {
 
     shoot(id) {
         return this.send('shoot', { id });
+    }
+
+    updateScene() {
+        return this.send('update', {});
     }
 }

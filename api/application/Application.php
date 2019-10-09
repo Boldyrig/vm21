@@ -44,6 +44,10 @@ class Application {
         return false;
     }
 
+    public function updateScene($params) {
+        return $this->vMech->updateScene();
+    }
+
     public function test() {
         return true;
     }

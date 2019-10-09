@@ -5,7 +5,10 @@ require_once('types/Building.php');
 require_once('types/Objects.php');
 
 class VMech {
-    function __construct() {      
+    function __construct() {
+		// время обновления
+		$this->updateTime = 1000;  // частота обновления
+		$this->updateTimestamp = 0;// последнее обновление
         // создать поле
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
@@ -164,11 +167,9 @@ class VMech {
 				$this->killTank($object->id);
 			}
 			if(get_class($object) === Building){
-				echo (3233);
 				$this->killBuilding($object->id);
 			}
 			if(get_class($object) === Objects){
-				echo (1113);
 				$this->killObject($object->id);
 			}
 		}
@@ -329,7 +330,20 @@ class VMech {
 		return false;
 	}
 
-	/*public function update() {
+	// обновить и вернуть сцену
+	public function updateScene() {
 		$currentTime = round(microtime(true) * 1000); // текущее время
-	}*/
+		if ($currentTime - $this->updateTimestamp >= $this->updateTime) {
+			$this->updateTimestamp = $currentTime;// меняем время последнего обновления
+			$this->updateBullets();// сдвигаем пули
+			// собираем сцену
+			$scene = new stdClass();
+			$scene->field = $this->field;
+			$scene->tanks = $this->tanks;
+			$scene->buildings = $this->buildings;
+			$scene->bullets = $this->bullets;
+			return $scene;
+		}
+		return false;
+	}
 }
