@@ -1,11 +1,6 @@
 <?php
 
 class User {
-
-
-
-
-    
     public function login($login, $hash, $rnd) {
         $loginPass = '4a2d247d0c05a4f798b0b03839d94cf0';
         if ($loginPass) {

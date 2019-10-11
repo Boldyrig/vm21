@@ -6,9 +6,6 @@ require_once('types/Objects.php');
 
 class VMech {
     function __construct() {
-		// время обновления
-		$this->updateTime = 1000;  // частота обновления
-		$this->updateTimestamp = 0;// последнее обновление
         // создать поле
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
@@ -29,7 +26,7 @@ class VMech {
 		$this->HULL_TYPES = array($this->HULL_LIGHT);
 		// создать массив с типами орудий
 		$this->GUN_LIGHT = new stdClass();
-		$this->GUN_LIGHT->reloadTime = 125; // ms
+		$this->GUN_LIGHT->reloadTime = 1000; // ms
 		$this->GUN_LIGHT->damage = 5;
 		$this->GUN_LIGHT->range = 10;
 		$this->GUN_LIGHT->speed = 4;
@@ -46,6 +43,20 @@ class VMech {
 		// создать массив с объектами
 		$this->objects = array();
 		$this->objects[] = $this->createObject(4, 6, 6);
+		//создать сцену
+		$this->scene = $this->createScene($this->tanks, $this->buildings, $this->bullets, $this->objects, $this->field);
+	}
+
+	private function createScene($tanks, $buildings, $bullets, $objects, $field) {
+		$scene = new stdClass();
+		$scene->tanks = $tanks;
+		$scene->buildings = $buildings;
+		$scene->bullets = $bullets;
+		$scene->objects = $objects;
+		$scene->field = $field;
+		$scene->updateTime = 1000;
+		$scene->updateTimestamp = 0;
+		return $scene;
 	}
 
 	private function createBuilding($id, $x, $y, $width = 2, $height = 2){
@@ -55,7 +66,6 @@ class VMech {
 		$data->y = $y;
 		$data->width = $width;
 		$data->height = $height;
-		$this->array = array();
 		return new Building($data);
 	}
 
@@ -333,16 +343,11 @@ class VMech {
 	// обновить и вернуть сцену
 	public function updateScene() {
 		$currentTime = round(microtime(true) * 1000); // текущее время
-		if ($currentTime - $this->updateTimestamp >= $this->updateTime) {
-			$this->updateTimestamp = $currentTime;// меняем время последнего обновления
+		if ($currentTime - $this->scene->updateTimestamp >= $this->scene->updateTime) {
+			$this->scene->time = $this->scene->updateTimestamp;
+			$this->scene->updateTimestamp = $currentTime;// меняем время последнего обновления
 			$this->updateBullets();// сдвигаем пули
-			// собираем сцену
-			$scene = new stdClass();
-			$scene->field = $this->field;
-			$scene->tanks = $this->tanks;
-			$scene->buildings = $this->buildings;
-			$scene->bullets = $this->bullets;
-			return $scene;
+			return $this->scene;
 		}
 		return false;
 	}

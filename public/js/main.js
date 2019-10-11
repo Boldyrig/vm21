@@ -2,12 +2,10 @@ window.onload = () => {
 
     const server = new Server();
 
-    // запрос на обновление сцены
-    setInterval(updateScene, 100);
-    let scene;
+    // запрос на обновление сцены каждые 100 мс
+    //setInterval(updateScene, 100);
     async function updateScene () {
-        scene = await server.updateScene();
-        console.log(scene);
+        console.log(await server.updateScene());
     }
     
     document.getElementById('move').addEventListener('click', async () => {
