@@ -21,7 +21,7 @@ export default class Game extends React.Component {
         return (
             <div className="game">
                 <h1>Игра!!!</h1>
-                <button onClick={() => this.update()}>Начать игру</button><br/>
+                //<button onClick={() => this.update()}>Начать игру</button><br/>
                 <button onClick={() => this.logout()}>Выйди отсюда</button><br/>
                 <canvas></canvas>
             </div>
