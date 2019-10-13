@@ -13,7 +13,7 @@ export default class Game extends React.Component {
     }
 
     update() {
-        return console.log(this.updateRequest()) ;
+        return this.updateRequest() ;
     }
 
 
