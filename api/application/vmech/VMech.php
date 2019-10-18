@@ -5,7 +5,7 @@ require_once('types/Building.php');
 require_once('types/Objects.php');
 
 class VMech {
-    function __construct() {      
+    function __construct() {
         // создать поле
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
@@ -26,7 +26,7 @@ class VMech {
 		$this->HULL_TYPES = array($this->HULL_LIGHT);
 		// создать массив с типами орудий
 		$this->GUN_LIGHT = new stdClass();
-		$this->GUN_LIGHT->reloadTime = 125; // ms
+		$this->GUN_LIGHT->reloadTime = 1000; // ms
 		$this->GUN_LIGHT->damage = 5;
 		$this->GUN_LIGHT->range = 10;
 		$this->GUN_LIGHT->speed = 4;
@@ -40,19 +40,36 @@ class VMech {
 		$this->bullets[] = $this->createBullet(4, 7, $this->tanks[0], $this->GUN_TYPES[0]);
 		// создать массив с зданиями
 		$this->buildings = array();
+		$this->buildings[] = $this->createBuilding(102,3,3,0);
+		$this->buildings[] = $this->createBuilding(103,9,6,0);
 		// создать массив с объектами
 		$this->objects = array();
 		$this->objects[] = $this->createObject(4, 6, 6);
+		//создать сцену
+		$this->scene = $this->createScene($this->tanks, $this->buildings, $this->bullets, $this->objects, $this->field);
 	}
 
-	private function createBuilding($id, $x, $y, $width = 2, $height = 2){
+	private function createScene($tanks, $buildings, $bullets, $objects, $field) {
+		$scene = new stdClass();
+		$scene->tanks = $tanks;
+		$scene->buildings = $buildings;
+		$scene->bullets = $bullets;
+		$scene->objects = $objects;
+		$scene->field = $field;
+		$scene->updateTime = 1000;
+		$scene->updateTimestamp = 0;
+		return $scene;
+	}
+
+	private function createBuilding($id, $x, $y, $type, $hp = 100, $width = 2, $height = 2){
 		$data = new stdClass();
 		$data->id = $id;
 		$data->x = $x;
 		$data->y = $y;
+		$data->type = $type;
+		$data->hp = $hp;
 		$data->width = $width;
 		$data->height = $height;
-		$this->array = array();
 		return new Building($data);
 	}
 
@@ -160,17 +177,15 @@ class VMech {
 		if($object->hp > $damage) {
 			 $object->hp -= $damage;
 		} else {
-			/*if($object instanceof Tank){
+			if(get_class($object) ===  Tank){
 				$this->killTank($object->id);
-			}*/
-			/*if($object instanceof Building){
-				echo (3233);
+			}
+			if(get_class($object) === Building){
 				$this->killBuilding($object->id);
 			}
-			if($object instanceof Objects){
-				echo (1113);
+			if(get_class($object) === Objects){
 				$this->killObject($object->id);
-			}*/
+			}
 		}
 	}
 
@@ -218,6 +233,50 @@ class VMech {
 		}
 	}
 
+	//перемещение пуль
+	private function updateBullets() {
+		// идем по массиву пуль
+		for ($i = 0; $i < count($this->bullets); $i++) {
+			$bullet = $this->bullets[$i];
+			$x = $bullet->x;
+			$y = $bullet->y;
+			// по направлению пули меняем координаты на speed
+			switch ($bullet->direction) {
+				case 'left': $x -= $bullet->speed; break;
+				case 'right': $x += $bullet->speed; break;
+				case 'up': $y -= $bullet->speed; break; 
+				case 'down': $y += $bullet->speed; break;
+			}
+			//проверка на range
+			if ($bullet->distance > $bullet->range) {
+				array_splice($this->bullets, $i, 1);
+				return false;
+			}
+			$bullet->distance += $bullet->speed;
+			// идем по клеткам, которые пролетела пуля
+			for ($j = 0; $j < $bullet->speed; $j++) {
+				$xs = $x - $bullet->x > 0 ? $j : $x - $bullet->x < 0 ? -$j : 0; // смещение по x
+				$ys = $y - $bullet->y > 0 ? -$j : $y - $bullet->y < 0 ? $j : 0; // смещение по y
+				// если на одной из клеток стояло здание
+				$building = $this->isInnerBuilding($bullet->x + $xs, $bullet->y + $ys);
+				if ($building) {
+					$this->damage($building, $bullet);
+					array_splice($this->bullets, $i, 1);
+					return;
+				}
+				// если на одной из клеток стоял танк
+				$tank = $this->getTankByXY($bullet->x + $xs, $bullet->y + $ys);
+				if ($tank) {
+					$this->damage($tank, $bullet);
+					array_splice($this->bullets, $i, 1);
+					return;
+				}	
+			} 
+			$bullet->x = $x;
+			$bullet->y = $y;
+		}
+	}
+
     public function getTanks() { return $this->tanks; }
     public function getField() { return $this->field; }
 	public function getBullets() { return $this->bullets; }
@@ -259,6 +318,17 @@ class VMech {
 		}
 		return false;
 	}
+	
+	//проверка конца игры
+	public function checkEndGame() {
+		return true;
+		for ($i = 0; $i < count($this->buildings); $i++){
+			if ($this->buildings[$i]->type == 1 && $this->buildings[$i]->type == 2)	{
+				return true;
+			}
+			return false;
+		}
+	}
 
 	// выстрел (добавление пули в массив пулей)
 	public function shoot($tankId) {		
@@ -285,47 +355,18 @@ class VMech {
 		return false;
 	}
 
-	//перемещение пуль
-	public function updateBullets() {
-		// идем по массиву пуль
-		for ($i = 0; $i < count($this->bullets); $i++) {
-			$bullet = $this->bullets[$i];
-			$x = $bullet->x;
-			$y = $bullet->y;
-			// по направлению пули меняем координаты на speed
-			switch ($bullet->direction) {
-				case 'left': $x -= $bullet->speed; break;
-				case 'right': $x += $bullet->speed; break;
-				case 'up': $y -= $bullet->speed; break; 
-				case 'down': $y += $bullet->speed; break;
+	// обновить и вернуть сцену
+	public function updateScene() {
+	if ($this->checkEndGame()){	
+			$currentTime = round(microtime(true) * 1000); // текущее время
+			if ($currentTime - $this->scene->updateTimestamp >= $this->scene->updateTime) {
+				$this->scene->time = $this->scene->updateTimestamp;
+				$this->scene->updateTimestamp = $currentTime;// меняем время последнего обновления
+				$this->updateBullets();// сдвигаем пули
+				return $this->scene;
 			}
-			//проверка на range
-			if ($bullet->distance > $bullet->range) {
-				array_splice($this->bullets, $i, 1);
-				return false;
-			}
-			$bullet->distance += $bullet->speed;
-			// идем по клеткам, которые пролетела пуля
-			for ($j = 0; $j < $bullet->speed; $j++) {
-				$xs = $x - $bullet->x > 0 ? $j : $x - $bullet->x < 0 ? -$j : 0; // смещение по x
-				$ys = $y - $bullet->y > 0 ? -$j : $y - $bullet->y < 0 ? $j : 0; // смещение по y
-				// если на одной из клеток стояло здание
-				$building = $this->isInnerBuilding($bullet->x + $xs, $bullet->y + $ys);
-				if ($building) {
-					$this->damage($building, $bullet);
-					array_splice($this->bullets, $i, 1);
-					return;
-				}
-				// если на одной из клеток стоял танк
-				$tank = $this->getTankByXY($bullet->x + $xs, $bullet->y + $ys);
-				if ($tank) {
-					$this->damage($tank, $bullet);
-					array_splice($this->bullets, $i, 1);
-					return;
-				}	
-			} 
-			$bullet->x = $x;
-			$bullet->y = $y;
-		}
+			return false;
+		} 
+		return false;
 	}
 }
