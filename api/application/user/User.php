@@ -1,14 +1,37 @@
 <?php
 
 class User {
+
+    function __construct($db) {
+        $this->db = $db;
+    }
+
     public function login($login, $hash, $rnd) {
-        $loginPass = '4a2d247d0c05a4f798b0b03839d94cf0';
-        if ($loginPass) {
-            $hashS = md5($loginPass . $rnd);
+        $user = $this->db->getUserByLogin($login);
+        if ($user) {
+            $hashS = md5($user->password . $rnd);
             if (strval($hash) === strval($hashS)) {
-                return array('token' => md5($hash . strval(rand())));
+                $token = md5($hash . strval(rand()));
+                $this->db->updateToken($user->id, $token);
+                return array(
+                    'token' => $token,
+                    'login' => $user->login,
+                    'money' => $user->money
+                );
             }
         }
         return false;
+    }
+    
+    public function logout($token) {
+        $user = $this->db->getUserByToken($token);
+        if ($user) {
+            return $this->db->updateToken($user->id, null);
+        }
+        return false;
+    }
+
+    public function getUserByToken($token) {
+        return $this->db->getUserByToken($token);
     }
 }

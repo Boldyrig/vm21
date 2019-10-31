@@ -1,6 +1,6 @@
 <?php
-error_reporting(-1);
-
+error_reporting(1);
+header('Access-Control-Allow-Origin: *');
 require_once('application/Application.php');
 
 function router($params) {
@@ -14,9 +14,13 @@ function router($params) {
             case 'logout': return $app->logout($params);
             case 'registration': return $app->registration($params);
             // about game
+            case 'addTank': return $app->addTank($params);
             case 'move': return $app->move($params);
             case 'shoot': return $app->shoot($params);
             case 'update': return $app->updateScene($params);
+            case 'checkEndGame': return $app->checkEndGame();
+            case 'getConstructor': return $app->getConstructor();
+            case 'joinGame': return $app->joinGame($params);
             default: return false;
         }
     }

@@ -5,7 +5,8 @@ require_once('types/Building.php');
 require_once('types/Objects.php');
 
 class VMech {
-    function __construct() {
+    function __construct($db) {
+		$this->db = $db;
         // создать поле
         $this->field = array(array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 1, 1, 1, 0, 0),
@@ -13,33 +14,22 @@ class VMech {
 							 array(0, 0, 1, 0, 0, 1, 0, 0, 0, 0),
 							 array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 							 array(0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
-							 array(0, 0, 0, 0, 0, 0, 1, 0, 0, 0),
-							 array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-							 array(0, 0, 0, 1, 0, 0, 0, 1, 0, 0),
-							 array(0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+							 array(0, 0, 0, 0, 0, 0, 0, 1, 0, 0),
+							 array(1, 0, 0, 0, 0, 1, 1, 0, 1, 0),
+							 array(0, 0, 0, 0, 0, 0, 0, 1, 1, 0),
+							 array(1, 0, 0, 1, 0, 0, 1, 0, 1, 0)
 							);
-		// создать массив с типами брони
-		$this->HULL_LIGHT = new stdClass();
-		$this->HULL_LIGHT->cargo = 10;
-		$this->HULL_LIGHT->weight = 10;
-		$this->HULL_LIGHT->hp = 20;
-		$this->HULL_TYPES = array($this->HULL_LIGHT);
-		// создать массив с типами орудий
-		$this->GUN_LIGHT = new stdClass();
-		$this->GUN_LIGHT->reloadTime = 1000; // ms
-		$this->GUN_LIGHT->damage = 5;
-		$this->GUN_LIGHT->range = 10;
-		$this->GUN_LIGHT->speed = 4;
-		$this->GUN_TYPES = array($this->GUN_LIGHT);
 		// создать массив с танками
         $this->tanks = array();
-		$this->tanks[] = $this->createTank(1, 5, 7);
+		$this->tanks[] = $this->createTank(1, 0, 0);
 		//$this->tanks[] = $this->createTank(222, 7, 3);
 		// создать массив с пулями
 		$this->bullets = array();
-		$this->bullets[] = $this->createBullet(4, 7, $this->tanks[0], $this->GUN_TYPES[0]);
+		//$this->bullets[] = $this->createBullet(4, 7, $this->tanks[0], $this->GUN_TYPES[0]);
 		// создать массив с зданиями
 		$this->buildings = array();
+		$this->buildings[] = $this->createBuilding(102, 3, 3, 0);
+		//$this->buildings[] = $this->createBuilding(103,9,6,0);
 		// создать массив с объектами
 		$this->objects = array();
 		$this->objects[] = $this->createObject(4, 6, 6);
@@ -59,11 +49,13 @@ class VMech {
 		return $scene;
 	}
 
-	private function createBuilding($id, $x, $y, $width = 2, $height = 2){
+	private function createBuilding($id, $x, $y, $type, $hp = 100, $width = 2, $height = 2){
 		$data = new stdClass();
 		$data->id = $id;
 		$data->x = $x;
 		$data->y = $y;
+		$data->type = $type;
+		$data->hp = $hp;
 		$data->width = $width;
 		$data->height = $height;
 		return new Building($data);
@@ -92,9 +84,9 @@ class VMech {
 		return new Bullet($data);
 	}
 	// танк создается с 100 хп, легкая кабина добавляет 0, тяжелая 50
-	private function createTank($id, $x, $y, 
+	public function createTank($id, $x, $y, 
 								$team = 1, $hullType = 0, $gunType = 0, 
-								$shasshisType = 1, $direction = 'up', 
+								$shasshisType = 0, $direction = 'up', 
 								$reloadTimestamp = 0, 
 								$hp = 100, $cargo = 100, $cargoType = 1) {
 		$data = new stdClass();
@@ -107,10 +99,19 @@ class VMech {
 		$data->shassisType = $shasshisType;
 		$data->direction = $direction;
 		$data->reloadTimestamp = $reloadTimestamp;
-		$data->hp = $hp + $this->HULL_TYPES[$hullType]->hp;
+		$data->hp = $hp;
 		$data->cargo = $cargo;
 		$data->cargoType = $cargoType;
 		return new Tank($data);
+	}
+
+	public function getConstructor() {
+		$array = array();
+		$array['TEAM'] = $this->db->getTeams();
+		$array['GUN_TYPE'] = $this->db->getGuns();
+		$array['SHASSIS_TYPE'] = $this->db->getShassis();
+		$array['HULL_TYPE'] = $this->db->getHulls();
+		return $array;
 	}
 
 	// взять танк по id
@@ -218,7 +219,7 @@ class VMech {
 	private function raiseObject($object, $tank) {
 		if ($tank->cargoType == $object->type || !$tank->cargoType){ 
 			$tank->cargoType = $object->type;
-			$cargoLeft = $this->HULL_TYPES[$tank->hullType]->cargo - $tank->cargo;
+			$cargoLeft = $this->db->getHull($tank->hullType)->cargo - $tank->cargo;
 			if ($cargoLeft >= $object->count){
 				$tank->cargo += $object->count;
 				$this->killObject($object->id);
@@ -314,12 +315,23 @@ class VMech {
 		}
 		return false;
 	}
+	
+	//проверка конца игры
+	public function checkEndGame() {
+		return true;
+		for ($i = 0; $i < count($this->buildings); $i++){
+			if ($this->buildings[$i]->type == 1 && $this->buildings[$i]->type == 2)	{
+				return true;
+			}
+			return false;
+		}
+	}
 
 	// выстрел (добавление пули в массив пулей)
 	public function shoot($tankId) {		
 		$tank = $this->getTankById($tankId); // взять танк по id
 		if ($tank) {
-			$gun = $this->GUN_TYPES[$tank->gunType]; // взять его орудие		
+			$gun = $this->db->getGun($tank->gunType); // взять его орудие		
 			// проверить прошло ли время перезарядки
 			$currentTime = round(microtime(true) * 1000); // текущее время
 			if ($currentTime - $tank->reloadTimestamp >= $gun->reloadTime) {
@@ -342,12 +354,70 @@ class VMech {
 
 	// обновить и вернуть сцену
 	public function updateScene() {
-		$currentTime = round(microtime(true) * 1000); // текущее время
-		if ($currentTime - $this->scene->updateTimestamp >= $this->scene->updateTime) {
-			$this->scene->time = $this->scene->updateTimestamp;
-			$this->scene->updateTimestamp = $currentTime;// меняем время последнего обновления
-			$this->updateBullets();// сдвигаем пули
-			return $this->scene;
+		if ($this->checkEndGame()){	
+			$currentTime = round(microtime(true) * 1000); // текущее время
+			if ($currentTime - $this->scene->updateTimestamp >= $this->scene->updateTime) {
+				$this->scene->time = $this->scene->updateTimestamp;
+				$this->scene->updateTimestamp = $currentTime;// меняем время последнего обновления
+				$this->updateBullets();// сдвигаем пули
+				return $this->scene;
+			}
+			return false;
+		} 
+		return false;
+	}
+
+	public function addTank($userId, $teamId, $hullId, $gunId, $shassisId) {
+		$team = null;
+		$gun = null;
+		$hull = null;
+		$shassi = null;
+		// взять команды
+		$teams = $this->db->getTeams();
+		for ($i = 0; $i < count($teams); $i++){
+			if ($teams[$i]->id == $teamId) {
+				$team = $teams[$i];
+				break;
+			}
+		}
+		// взять типы корпусов
+		$hulls = $this->db->getHulls();
+		for ($i = 0; $i < count($hulls); $i++){
+			if ($hulls[$i]->id == $hullId) {
+				$hull = $hulls[$i];
+				break;
+			}
+		}
+		// взять типы пушек
+		$guns = $this->db->getGuns();
+		for ($i = 0; $i < count($guns); $i++){
+			if ($guns[$i]->id == $gunId) {
+				$gun = $guns[$i];
+				break;
+			}
+		}
+		// взять типы шасси
+		$shassis = $this->db->getShassis();
+		for ($i = 0; $i < count($shassis); $i++){
+			if ($shassis[$i]->id == $shassisId) {
+				$shassi = $shassis[$i];
+				break;
+			}
+		}
+		if ($team && $hull && $gun && $shassi) {
+			// проверить, что хватает баблишка
+			//...
+			// добавить танк
+			return $this->db->addTank(
+				$userId, 
+				$team->id, 
+				$gun->reloadTime, 
+				$hull->hp,
+				$hull->cargo,
+				$hull->id,
+				$gun->id,
+				$shassi->id
+			);
 		}
 		return false;
 	}
