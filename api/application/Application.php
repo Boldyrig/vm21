@@ -41,7 +41,8 @@ class Application {
             $params['team'] && 
             $params['hull'] && 
             $params['gun'] && 
-            $params['shassis']
+            $params['shassis'] &&
+            $params['money']
         ) {
             $user = $this->user->getUserByToken($params['token']);
             if ($user) {
@@ -50,7 +51,8 @@ class Application {
                     $params['team'], 
                     $params['hull'],
                     $params['gun'],
-                    $params['shassis']);
+                    $params['shassis'], 
+                    $params['money'] );
             }
         }
         return false;

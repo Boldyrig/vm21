@@ -2,12 +2,13 @@ import React from 'react';
 class TankConstructor extends React.Component {
     constructor(props) {
         super();
-        this.joinRequest = props.joinRequest;
+        this.addTankRequest = props.addTankRequest;
         this.update = props.update;
         this.setConstructed = props.setConstructed;
         this.getConstructor = props.getConstructor;
         this.constructor = null;
         this.loadConstructor();
+        this.money = props.money;
         //this.getConstructor().then(result => {this.constructor = result; this.setState({isLoaded: true})});
         this.state = {
             isLoaded: false
@@ -34,18 +35,24 @@ class TankConstructor extends React.Component {
     // Берем собранный танк
     buildTank() {
         let params = {};
+        let price = 0;
         for(let elem in this.constructor){
             for(let i = 0; i < this.constructor[elem].length; i ++){
                 let item = this.constructor[elem][i];
                 if(document.getElementById(item.name).checked){
-                    params[elem] = item.name;
+                    params[elem] = item.id;
+                    price += item.price ? item.price - 0 : 0;
                 }
             }
             if(!params[elem]){
                 return false;
             }
         }
-        return params;
+        if(this.money >= price){
+            params['MONEY'] = this.money;
+            return params;
+        }
+        return false;
         // if(document.getElementById('TEAM_RED').checked){ var team =  document.getElementsByName('team')[0].value; }
         // if(document.getElementById('TEAM_BLUE').checked){ var team =  document.getElementsByName('team')[1].value; }
 
@@ -79,6 +86,7 @@ class TankConstructor extends React.Component {
                 arr.push(<label>
                             <input type='radio' name={elem} id={item.name}></input>
                             <img className='constructorImages' src={require(`../img/${item.image}`)} alt='none' />
+                            { item.price ? <span>{item.price}</span> : null }
                         </label>);   
             }
             arr.push(<br />);
@@ -88,10 +96,10 @@ class TankConstructor extends React.Component {
 
     render() {
         return (<div>
-            {this.constructor ? this.printConstructor() : null}
+            { this.constructor ? this.printConstructor() : null }
             <button onClick={ () => {
                 if(this.buildTank()){
-                    this.joinRequest(this.buildTank());  // Отправляем запрос на сервер для создания нового танка с параметрами из конструктора
+                    this.addTankRequest(this.buildTank());  // Отправляем запрос на сервер для создания нового танка с параметрами из конструктора
                     this.update();
                     this.setConstructed(true);
                 }

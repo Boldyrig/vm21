@@ -367,7 +367,7 @@ class VMech {
 		return false;
 	}
 
-	public function addTank($userId, $teamId, $hullId, $gunId, $shassisId) {
+	public function addTank($userId, $teamId, $hullId, $gunId, $shassisId, $money) {
 		$team = null;
 		$gun = null;
 		$hull = null;
@@ -404,20 +404,22 @@ class VMech {
 				break;
 			}
 		}
-		if ($team && $hull && $gun && $shassi) {
+		if ($team && $hull && $gun && $shassi && $money) {
 			// проверить, что хватает баблишка
-			//...
-			// добавить танк
-			return $this->db->addTank(
-				$userId, 
-				$team->id, 
-				$gun->reloadTime, 
-				$hull->hp,
-				$hull->cargo,
-				$hull->id,
-				$gun->id,
-				$shassi->id
-			);
+			$price = $hull->price + $gun->price + $shassi->price;
+			if($money >= $price) {
+				// добавить танк
+				return $this->db->addTank(
+					$userId, 
+					$team->id, 
+					$gun->reloadTime, 
+					$hull->hp,
+					$hull->cargo,
+					$hull->id,
+					$gun->id,
+					$shassi->id
+				);
+			}
 		}
 		return false;
 	}

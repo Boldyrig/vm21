@@ -35,7 +35,7 @@ class App extends React.Component {
             <Game
                 setAuth = {val => this.setAuth(val)}
                 updateRequest={() => this.server.updateScene()}
-                joinRequest={val => this.server.joinGame(val)}
+                addTankRequest={val => this.server.addTank(val)}
                 appState = {() => this.appState}
                 getConstructor = {() => this.server.getConstructor()}
               />

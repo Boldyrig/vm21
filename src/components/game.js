@@ -8,7 +8,7 @@ export default class Game extends React.Component {
         // коллбеки
         this.setAuth = props.setAuth;
         this.updateRequest = props.updateRequest;
-        this.joinRequest = props.joinRequest;
+        this.addTankRequest = props.addTankRequest;
         this.appState = props.appState();
         this.getConstructor = props.getConstructor;
         this.appState.money = (this.appState.money - 0);
@@ -130,10 +130,11 @@ export default class Game extends React.Component {
                 {this.state.isConstructed
                  ? <canvas id='canvas'></canvas>
                  : <TankConstructor 
-                        joinRequest = { (data) => this.joinRequest(data)} 
+                        addTankRequest = { (data) => this.addTankRequest(data)} 
                         update = { () => this.update()}
                         setConstructed = { (val) => this.setConstructed(val)}
-                        getConstructor = {() => this.getConstructor()}/>
+                        getConstructor = {() => this.getConstructor()}
+                        money = {this.appState.money}/>
                 }
                 <button onClick={ 
                     () => {

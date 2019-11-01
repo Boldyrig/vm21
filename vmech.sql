@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Окт 31 2019 г., 17:00
+-- Время создания: Ноя 01 2019 г., 19:28
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.1.22
 
@@ -107,7 +107,7 @@ CREATE TABLE `hull` (
 --
 
 INSERT INTO `hull` (`id`, `cargo`, `hp`, `price`, `name`, `title`, `image`) VALUES
-(1, 20, 20, 500, 'HULL-LIGHT', '', 'Tanks/HULL_A_1.png'),
+(1, 20, 20, 500, 'HULL_LIGHT', '', 'Tanks/HULL_A_1.png'),
 (2, 30, 30, 750, 'HULL_HEAVY', '', 'Tanks/HULL_B_1.png');
 
 -- --------------------------------------------------------
@@ -157,9 +157,9 @@ CREATE TABLE `tanks` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `team` int(11) NOT NULL,
-  `x` int(11) NOT NULL,
-  `y` int(11) NOT NULL,
-  `direction` int(11) NOT NULL,
+  `x` int(11) NOT NULL DEFAULT 0,
+  `y` int(11) NOT NULL DEFAULT 0,
+  `direction` varchar(16) NOT NULL DEFAULT 'up',
   `reloadTime` int(11) NOT NULL,
   `hp` int(11) NOT NULL,
   `cargo` int(11) NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
-(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '', 1200),
+(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '36631ac3caccd35509e6350646ad5e48', 1200),
 (2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '23b7e953ec102cd6ea5e77951dd8b67c', 1200);
 
 --
@@ -314,7 +314,7 @@ ALTER TABLE `shassis`
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

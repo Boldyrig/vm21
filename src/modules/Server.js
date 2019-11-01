@@ -60,4 +60,12 @@ export default class Server {
     joinGame(tankParams) {
         return this.send('joinGame', { tankParams });
     }
+
+    addTank(tankParams) {
+        return this.send('addTank', { team: tankParams['TEAM'], 
+                                      hull: tankParams['HULL_TYPE'], 
+                                      gun: tankParams['GUN_TYPE'], 
+                                      shassis: tankParams['SHASSIS_TYPE'], 
+                                      money: tankParams['MONEY'] });
+    }
 }
