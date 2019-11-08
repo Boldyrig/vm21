@@ -11,7 +11,7 @@ export default class Game extends React.Component {
         this.addTankRequest = props.addTankRequest;
         this.appState = props.appState();
         this.getConstructor = props.getConstructor;
-        this.appState.money = (this.appState.money - 0);
+        this.setErrors = props.setErrors;
         this.state = {
             isConstructed: false
         }
@@ -122,11 +122,14 @@ export default class Game extends React.Component {
     }
 
     render() {
+        console.log(this.appState.money);
         return (
             <div className="game">
                 <h1>Игра!!!</h1>
-                <h1><span>Ваш баланс: </span>{this.appState.money}<span> рублей</span></h1>
-                <h1><span>Ваш логин: </span>{this.appState.login}</h1>
+                <div id='userInfo'>
+                    <span>Ваш баланс: </span>{this.appState.money}<span> рублей</span><br/>
+                    <span>Ваш логин: </span>{this.appState.login}
+                </div>
                 {this.state.isConstructed
                  ? <canvas id='canvas'></canvas>
                  : <TankConstructor 
@@ -134,7 +137,8 @@ export default class Game extends React.Component {
                         update = { () => this.update()}
                         setConstructed = { (val) => this.setConstructed(val)}
                         getConstructor = {() => this.getConstructor()}
-                        money = {this.appState.money}/>
+                        money = {this.appState.money}
+                        setErrors = {this.setErrors}/>
                 }
                 <button onClick={ 
                     () => {

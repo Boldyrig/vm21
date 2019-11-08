@@ -107,10 +107,13 @@ class VMech {
 
 	public function getConstructor() {
 		$array = array();
-		$array['TEAM'] = $this->db->getTeams();
-		$array['GUN_TYPE'] = $this->db->getGuns();
-		$array['SHASSIS_TYPE'] = $this->db->getShassis();
-		$array['HULL_TYPE'] = $this->db->getHulls();
+		$array['CONSTRUCTOR'] = array(
+			'TEAM' => $this->db->getTeams(),
+			'GUN_TYPE' => $this->db->getGuns(),
+			'SHASSIS_TYPE' => $this->db->getShassis(),
+			'HULL_TYPE' => $this->db->getHulls()
+		);
+		$array['DEFAULT_MONEY'] = $this->db->getBattle()->defaultMoney;
 		return $array;
 	}
 
@@ -367,6 +370,7 @@ class VMech {
 		return false;
 	}
 
+	// добавить танк (вычесть баблишко у пользователя)
 	public function addTank($userId, $teamId, $hullId, $gunId, $shassisId, $money) {
 		$team = null;
 		$gun = null;
@@ -406,8 +410,16 @@ class VMech {
 		}
 		if ($team && $hull && $gun && $shassi && $money) {
 			// проверить, что хватает баблишка
+			$battle = $this->db->getBattle(); 
+			$defaultMoney = $battle->defaultMoney;
 			$price = $hull->price + $gun->price + $shassi->price;
-			if($money >= $price) {
+			$userMoney = $money >= $defaultMoney; // флажок, что бабки пользовательские
+			$money = ($userMoney) ? $money : $defaultMoney;
+			if ($money >= $price) {
+				if ($userMoney) {
+					$money -= $price;
+					$this->db->updateUserMoney($userId, $money);
+				}
 				// добавить танк
 				return $this->db->addTank(
 					$userId, 

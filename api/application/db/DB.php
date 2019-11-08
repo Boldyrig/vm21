@@ -90,4 +90,22 @@ class DB {
         $this->conn->query($query);
         return true;
     }
+
+    public function getBattle() {
+        $query = 'SELECT * FROM battle';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
+	public function addUsers($login, $hash , $token){
+		$query = 'INSERT INTO users (login, password , token) VALUES ("'.$login . '" , "' . $hash . '" , "' . $token .'")';
+		$this->conn->query($query);
+        return true;
+    }
+    
+    public function updateUserMoney($id, $money) {
+        $query = 'UPDATE users SET money="' . $money . '" WHERE id=' . $id;
+        $this->conn->query($query);
+        return true;
+    }
 }

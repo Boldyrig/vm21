@@ -31,6 +31,17 @@ class User {
         return false;
     }
 
+	public function registration($login, $hash){
+		if (!($this->db->getUserByLogin($login))) {
+			$hashs = md5($login . $hash);
+			$token = md5($hashs . strval(rand()));
+			$this->db->addUsers($login, $hash, $token);
+            $this->db->updateToken($user->id, $token);
+			$user = $this->db->getUserByLogin($login);
+			return $user;
+		}
+	}
+
     public function getUserByToken($token) {
         return $this->db->getUserByToken($token);
     }

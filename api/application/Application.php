@@ -29,7 +29,10 @@ class Application {
     }
 
     public function registration($params) {
-
+		if ($params['login'] && $params['hash']) {
+			return $this->user->registration($params['login'], $params['hash']);
+		}
+		return false;
     }
 
     /************/
@@ -52,7 +55,7 @@ class Application {
                     $params['hull'],
                     $params['gun'],
                     $params['shassis'], 
-                    $params['money'] );
+                    $user->money);
             }
         }
         return false;

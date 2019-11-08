@@ -1,5 +1,9 @@
 export default class Server {
 
+    constructor(setError){
+        this.setError = setError;
+    }
+
     HOST = 'http://vm21/api/?';
     token = null;
 
@@ -13,7 +17,15 @@ export default class Server {
         }
         const response = await fetch(`${this.HOST}method=${method}&${arr.join('&')}`);
         const answer = await response.json();
-        return (answer && answer.result === 'ok') ? answer.data : false;
+        return (answer && answer.result === 'ok') ? answer.data : this.error(answer.error);
+    }
+
+    error(err){
+        this.setError({
+            code: err.code,
+            text: err.text
+        });
+        return false;
     }
 
     /********************/
@@ -30,6 +42,14 @@ export default class Server {
 
     logout() {
         return this.send('logout');
+    }
+
+    async registration(data) {
+        const result = await this.send('registration', data);
+        if (result && result.token) {
+            this.token = result.token;
+        }
+        return result;
     }
 
     /************/
