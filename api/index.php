@@ -8,7 +8,6 @@ function router($params) {
     if ($method) {
         $app = new Application();
         switch ($method) {
-            case 'test': return $app->test();
             // about user
             case 'login': return $app->login($params);
             case 'logout': return $app->logout($params);

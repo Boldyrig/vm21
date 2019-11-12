@@ -45,11 +45,23 @@ class DB {
         return $this->oneRecord($result);
     }
 
+	private function getDataByUserId($tableName, $userId) {
+        $query = 'SELECT * FROM ' . $tableName . ' WHERE user_id=' . $userId;
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
     public function getUserByLogin($login) {
         $query = 'SELECT * FROM users WHERE login="' . $login . '"';
         $result = $this->conn->query($query);
         return $this->oneRecord($result);
     }
+
+	public function getUsers(){
+		$query = 'SELECT * FROM users';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+	}
 
     public function getUserByToken($token) {
         $query = 'SELECT * FROM users WHERE token="' . $token . '"';
@@ -104,8 +116,31 @@ class DB {
     }
     
     public function updateUserMoney($id, $money) {
-        $query = 'UPDATE users SET money="' . $money . '" WHERE id=' . $id;
+        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
         $this->conn->query($query);
         return true;
     }
+
+    public function updateBattleTimeStamp($id, $timeStamp) {
+        $query = 'UPDATE battle SET timeStamp='.$timeStamp.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateTankXY($id, $x, $y, $direction) {
+        $query = 'UPDATE  tanks SET  x='.$x.', y= '.$y.', direction = "'.$direction.'" WHERE id='.$id;
+
+        $this->conn->query($query);
+        return true;
+
+    }
+
+    public function getField(){
+        return $this->getAllData('field');
+    }
+
+	public function getTanks(){
+        return $this->getAllData('tanks');
+    }
+
 }

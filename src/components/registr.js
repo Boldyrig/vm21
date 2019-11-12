@@ -28,6 +28,9 @@ class Registr extends React.Component {
             console.log('Не хватает данных!');
         }
     }
+    logout(){
+        this.setRegistr(false);
+    }
 
     render(){
         return(
@@ -37,6 +40,7 @@ class Registr extends React.Component {
                 <input type='password' id='password_Registr' placeholder='Пароль'></input><br />
                 <input type='password' id='password_Repit' placeholder='Повторите пароль'></input><br />
                 <button onClick={() => this.registration()}>Регистрация</button>
+                <button onClick={() => this.logout()}>Выйти</button>
             </div>
         );
     }

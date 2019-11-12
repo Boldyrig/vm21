@@ -1,16 +1,14 @@
 import md5 from 'md5';
 import React from 'react';
-
 class Auth extends React.Component {
 
     constructor(props) {
         super();
         this.authRequest = props.authRequest;
         this.setAuth = props.setAuth;
-        this.setRegistr = props.setRegistr;
         this.appState = props.appState();
-        this.registrRequest = props.registrRequest;
-        
+        this.setRegistr = props.setRegistr;
+        this.setErrors = props.setErrors;
     }
 
     async login() {
@@ -20,17 +18,19 @@ class Auth extends React.Component {
             const rnd = Math.round(Math.random() * 100000);
             const hash = md5(md5(login + password) + rnd);
             const result = await this.authRequest({ login, hash, rnd });
-            console.log(result);
             if(result){
                 this.appState.login = result.login;
                 this.appState.money = result.money;
                 this.setAuth(true);
             }
         } else {
-            console.log('Не хватает данных!');
-        }
-        
+            this.setErrors({
+                code: 100,
+                text: 'Не хватает данных для входа'
+            });
+        }    
     }
+
     registration() {
         this.setRegistr(true);
     }

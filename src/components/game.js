@@ -11,7 +11,8 @@ export default class Game extends React.Component {
         this.addTankRequest = props.addTankRequest;
         this.appState = props.appState();
         this.getConstructor = props.getConstructor;
-        this.appState.money = (this.appState.money - 0);
+        this.setErrors = props.setErrors;
+        this.move = props.move;
         this.state = {
             isConstructed: false
         }
@@ -50,6 +51,17 @@ export default class Game extends React.Component {
 
         this.SPRITE.TANK_HULL_LIGHT_BLUE.src = require('../img/Tanks/hull_light_blue.png');
         this.SPRITE.TANK_HULL_HARD_BLUE.src = require('../img/Tanks/hull_hard_blue.png');
+
+        this.updateRequest(scene => this.renderScene(scene));
+
+        window.document.onkeypress = (event) => {
+            switch (event.keyCode) {
+                case 97: this.move('left');
+                case 100: this.move('right');
+                case 119 : this.move ('up');
+                case 115 : this.move('down');
+            }
+        }
     }
 
     setConstructed(val) {
@@ -72,35 +84,33 @@ export default class Game extends React.Component {
                 if (field[j][i] > 0) this.canvas.drawImageScale(this.SPRITE.DECOR, i*50, j*50, 50, 50);
             }
         }
-
-        for (let i = 0; i < buildings.length; i++) {
+        
+       /* for (let i = 0; i < buildings.length; i++) {
             this.canvas.drawImageScale(this.SPRITE.BUILDING_RED, buildings[i].x * 50, buildings[i].y * 50, buildings[i].width * 50, buildings[i].height * 50);
-        }
-
+        }*/
         for (let i = 0; i < tanks.length; i++) {
-
-            if(componentsTank !== undefined){
-                if (componentsTank.team === 'TEAM_RED'){
-                    /*шасси*/ 
-                    if (componentsTank.shasshi === 'WHEELS') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.shasshi === 'CATERPILLAR') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    /*корпус*/ 
-                    if (componentsTank.hull === 'HULL_LIGHT') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.hull === 'HULL_HARD') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    /*оружие*/
-                    if (componentsTank.gun === 'GUN_LIGHT') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.gun === 'GUN_HARD') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+            if(tanks[i] !== undefined){
+                if (tanks[i].team === '1'){
+                    // шасси
+                    if (tanks[i].shassisType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].shassisType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    //корпус
+                    if (tanks[i].hullType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].hullType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    //оружие
+                    if (tanks[i].gunType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].gunType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
                 }
-                if (componentsTank.team === 'TEAM_BLUE'){
-                    /*шасси*/ 
-                    if (componentsTank.shasshi === 'WHEELS') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.shasshi === 'CATERPILLAR') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    /*корпус*/ 
-                    if (componentsTank.hull === 'HULL_LIGHT') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.hull === 'HULL_HARD') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    /*оружие*/
-                    if (componentsTank.gun === 'GUN_LIGHT') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
-                    if (componentsTank.gun === 'GUN_HARD') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                if (tanks[i].team === '2'){
+                    //шасси
+                    if (tanks[i].shassisType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].shassisType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    //корпус
+                    if (tanks[i].hullType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].hullType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    //оружие
+                    if (tanks[i].gunType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
+                    if (tanks[i].gunType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50);
                 }
 
                 document.getElementById('canvas').style.display = 'table';
@@ -110,31 +120,29 @@ export default class Game extends React.Component {
                 document.getElementById('canvas').style.display = 'none';    
             } 
         }
+        
     }
 
     logout() {
         this.setAuth(false);
     }
 
-    async update() {
-        const scene = await this.updateRequest();
-        this.renderScene(scene);
-    }
-
     render() {
         return (
             <div className="game">
                 <h1>Игра!!!</h1>
-                <h1><span>Ваш баланс: </span>{this.appState.money}<span> рублей</span></h1>
-                <h1><span>Ваш логин: </span>{this.appState.login}</h1>
+                <div id='userInfo'>
+                    <span>Ваш баланс: </span>{this.appState.money}<span> рублей</span><br/>
+                    <span>Ваш логин: </span>{this.appState.login}
+                </div>
                 {this.state.isConstructed
                  ? <canvas id='canvas'></canvas>
                  : <TankConstructor 
                         addTankRequest = { (data) => this.addTankRequest(data)} 
-                        update = { () => this.update()}
                         setConstructed = { (val) => this.setConstructed(val)}
                         getConstructor = {() => this.getConstructor()}
-                        money = {this.appState.money}/>
+                        money = {this.appState.money}
+                        setErrors = {this.setErrors}/>
                 }
                 <button onClick={ 
                     () => {
