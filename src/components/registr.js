@@ -28,15 +28,31 @@ class Registr extends React.Component {
             console.log('Не хватает данных!');
         }
     }
+    logout(){
+        this.setRegistr(false);
+    }
 
     render(){
         return(
-            <div className="registr">
-                <h1>Регистрация!!!</h1>
-                <input type='text' id='login_Registr' placeholder='Логин'></input><br />
-                <input type='password' id='password_Registr' placeholder='Пароль'></input><br />
-                <input type='password' id='password_Repit' placeholder='Повторите пароль'></input><br />
-                <button onClick={() => this.registration()}>Регистрация</button>
+            <div className="menu">
+                <h1>Registration</h1>
+                <div className='registr'>
+                    <div className='menu__input'>
+                        <input className='input__login' type='text' id='login_Registr' placeholder='Login'></input><br />
+                        <input className='input__password' type='password' id='password_Registr' placeholder='Password'></input><br />
+                        <input className='input__password' type='password' id='password_Repit' placeholder='Confirm password'></input><br />
+                    </div>
+                    <div className='menu__btn'>
+                        <div className='green__btn' onClick={() => this.registration()}>
+                            <h2>Sign up</h2>
+                            <img src='src\img\blue-btn.png' alt=''/>
+                        </div>
+                        <div className='blue__btn' onClick={() => this.logout()}>
+                            <h2>Back</h2>
+                            <img src='src\img\blue-btn.png' alt=''/>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

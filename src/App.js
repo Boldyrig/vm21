@@ -41,7 +41,6 @@ class App extends React.Component {
   }
 
 	render () {
-    console.log('pererisoval App '+ this.appState.login);
 		return (
 			<div className="App">
 				<h1>ВМ-мехи!!!</h1>
@@ -50,11 +49,12 @@ class App extends React.Component {
           ?
             <Game
                 setAuth = {val => this.setAuth(val)}
-                updateRequest = {() => this.server.updateScene()}
+                updateRequest = {cb => this.server.updateScene(cb)}
                 addTankRequest = {val => this.server.addTank(val)}
                 appState = {() => this.appState}
                 getConstructor = {() => this.server.getConstructor()}
                 setErrors = {err => this.setErrors(err)}
+                move = {(direction) => this.server.move(direction) }
               />
           : this.state.isRegistr
           ?

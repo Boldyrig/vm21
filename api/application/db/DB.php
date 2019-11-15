@@ -45,11 +45,23 @@ class DB {
         return $this->oneRecord($result);
     }
 
+	private function getDataByUserId($tableName, $userId) {
+        $query = 'SELECT * FROM ' . $tableName . ' WHERE user_id=' . $userId;
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
     public function getUserByLogin($login) {
         $query = 'SELECT * FROM users WHERE login="' . $login . '"';
         $result = $this->conn->query($query);
         return $this->oneRecord($result);
     }
+
+	public function getUsers(){
+		$query = 'SELECT * FROM users';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+	}
 
     public function getUserByToken($token) {
         $query = 'SELECT * FROM users WHERE token="' . $token . '"';
@@ -74,16 +86,18 @@ class DB {
     public function getShassi($id) { return $this->getDataById('shassis', $id); }
     public function getTeam($id) { return $this->getDataById('team', $id); }
 
-    public function addTank($userId, $teamId, $reloadTime, $hp, $cargo, $hullId, $gunId, $shassiId) {
+    public function addTank($userId, $teamId, $reloadTime, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
         // удалить все танки игрока
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
         $this->conn->query($query);
         // добавить танк игрока
         $query = 'INSERT INTO tanks 
-                (user_id, team, reloadTime, hp, cargo, hullType, gunType, shassisType) 
+                (user_id, team, x, y, reloadTime, hp, cargo, hullType, gunType, shassisType ) 
                 VALUES 
                 ('.$userId.', 
-                 '.$teamId.', 
+                 '.$teamId.',
+				 '.$x.',
+				 '.$y.',
                  '.$reloadTime.', 
                  '.$hp.', 
                  '.$cargo.', '.$hullId.', '.$gunId.', '.$shassiId.')';
@@ -104,8 +118,33 @@ class DB {
     }
     
     public function updateUserMoney($id, $money) {
-        $query = 'UPDATE users SET money="' . $money . '" WHERE id=' . $id;
+        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
         $this->conn->query($query);
         return true;
     }
+
+    public function updateBattleTimeStamp($id, $timeStamp) {
+        $query = 'UPDATE battle SET timeStamp='.$timeStamp.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateTankXY($id, $x, $y, $direction) {
+        $query = 'UPDATE  tanks SET  x='.$x.', y= '.$y.', direction = "'.$direction.'" WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function getField(){
+        return $this->getAllData('field');
+    }
+
+	public function getTanks(){
+        return $this->getAllData('tanks');
+    }
+
+	public function getBuildings(){
+		return $this->getAllData('building');
+	}
+
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Ноя 01 2019 г., 19:28
+-- Время создания: Ноя 15 2019 г., 16:12
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.1.22
 
@@ -29,8 +29,44 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `battle` (
-  `timeStamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int(11) NOT NULL,
+  `timeStamp` bigint(11) DEFAULT NULL,
+  `defaultMoney` int(11) NOT NULL,
+  `fieldX` int(11) NOT NULL,
+  `fieldY` int(11) NOT NULL,
+  `updateTime` int(11) NOT NULL COMMENT 'сколько должно пройти времени до обновления сцены'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `battle`
+--
+
+INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`) VALUES
+(1, 1573823381948, 1200, 10, 10, 50);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `building`
+--
+
+CREATE TABLE `building` (
+  `Id` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `x` int(11) NOT NULL DEFAULT 0,
+  `y` int(11) NOT NULL DEFAULT 0,
+  `hp` int(11) NOT NULL,
+  `width` int(11) NOT NULL,
+  `height` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `building`
+--
+
+INSERT INTO `building` (`Id`, `team`, `x`, `y`, `hp`, `width`, `height`) VALUES
+(1, 1, 8, 8, 1000, 2, 2),
+(2, 2, 0, 0, 1000, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -60,6 +96,25 @@ CREATE TABLE `field` (
   `y` int(11) NOT NULL,
   `hp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `field`
+--
+
+INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
+(1, 5, 0, 100),
+(2, 3, 0, 100),
+(4, 6, 5, 100),
+(5, 5, 6, 100),
+(6, 6, 5, 100),
+(7, 5, 6, 100),
+(8, 5, 6, 100),
+(9, 5, 6, 100),
+(10, 6, 4, 100),
+(11, 5, 7, 100),
+(15, 1, 9, 100),
+(16, 0, 9, 100),
+(17, 5, 3, 100);
 
 -- --------------------------------------------------------
 
@@ -168,6 +223,15 @@ CREATE TABLE `tanks` (
   `shassisType` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Дамп данных таблицы `tanks`
+--
+
+INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTime`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`) VALUES
+(26, 3, 1, 5, 2, 'left', 1000, 20, 20, 1, 1, 1),
+(177, 2, 2, 8, 7, 'left', 1500, 20, 20, 1, 2, 1),
+(178, 1, 1, 7, 6, 'up', 1000, 20, 20, 1, 1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -201,19 +265,32 @@ CREATE TABLE `users` (
   `password` varchar(32) NOT NULL,
   `token` varchar(32) DEFAULT NULL,
   `money` int(11) NOT NULL DEFAULT 1200
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
 -- Дамп данных таблицы `users`
 --
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
-(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '36631ac3caccd35509e6350646ad5e48', 1200),
-(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '23b7e953ec102cd6ea5e77951dd8b67c', 1200);
+(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '', 900),
+(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '667b2e932621d652d91f597c336deaf7', 300),
+(3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', '', 300);
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `battle`
+--
+ALTER TABLE `battle`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `building`
+--
+ALTER TABLE `building`
+  ADD PRIMARY KEY (`Id`);
 
 --
 -- Индексы таблицы `bullets`
@@ -275,6 +352,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT для таблицы `battle`
+--
+ALTER TABLE `battle`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `building`
+--
+ALTER TABLE `building`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
@@ -284,19 +373,19 @@ ALTER TABLE `bullets`
 -- AUTO_INCREMENT для таблицы `field`
 --
 ALTER TABLE `field`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT для таблицы `gun`
 --
 ALTER TABLE `gun`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `hull`
 --
 ALTER TABLE `hull`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `objects`
@@ -308,25 +397,25 @@ ALTER TABLE `objects`
 -- AUTO_INCREMENT для таблицы `shassis`
 --
 ALTER TABLE `shassis`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
 
 --
 -- AUTO_INCREMENT для таблицы `team`
 --
 ALTER TABLE `team`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -54,7 +54,7 @@ class Application {
                     $params['team'], 
                     $params['hull'],
                     $params['gun'],
-                    $params['shassis'], 
+                    $params['shassis'],
                     $user->money);
             }
         }
@@ -62,8 +62,11 @@ class Application {
     }
 
     public function move($params) {
-        if ($params['id'] && $params['direction']) {
-            return $this->vMech->move(intval($params['id']), $params['direction']);
+        if ($params['token'] && $params['direction']) {
+            $user = $this->user->getUserByToken($params['token']);
+            if ($user) {
+                return $this->vMech->move($user->id, $params['direction']);
+            }
         }
         return false;
     }
@@ -88,9 +91,5 @@ class Application {
 
     public function getConstructor() {
         return $this->vMech->getConstructor();
-    }
-
-    public function test() {
-        return true;
     }
 }
