@@ -13,11 +13,13 @@ export default class Game extends React.Component {
         this.getConstructor = props.getConstructor;
         this.setErrors = props.setErrors;
         this.move = props.move;
+        this.shoot = props.shoot;
         this.state = {
             isConstructed: false
         }
         // спрайты (картинки)
         this.SPRITE = {
+            SPRITE_MAP: new window.Image(),
             GRASS: new window.Image(),
             DECOR: new window.Image(),
             BUILDING_RED: new window.Image(),
@@ -31,8 +33,11 @@ export default class Game extends React.Component {
             TANK_HULL_LIGHT_RED: new window.Image(),
             TANK_HULL_HARD_RED: new window.Image(),
             TANK_HULL_LIGHT_BLUE: new window.Image(),
-            TANK_HULL_HARD_BLUE: new window.Image()
+            TANK_HULL_HARD_BLUE: new window.Image(),
+            BULLET: new window.Image()
         };
+
+        this.SPRITE.SPRITE_MAP.src = require('../img/Map/map_sprite.png');
         /*поле*/
         this.SPRITE.GRASS.src = require('../img/Blocks/Grass_A.png');
         this.SPRITE.DECOR.src = require('../img/Blocks/Decor_B.png');
@@ -56,6 +61,9 @@ export default class Game extends React.Component {
         this.SPRITE.TANK_HULL_LIGHT_BLUE.src = require('../img/Tanks/hull_light_blue.png');
         this.SPRITE.TANK_HULL_HARD_BLUE.src = require('../img/Tanks/hull_hard_blue.png');
 
+        this.SPRITE.BULLET.src = require('../img/Tanks/Bomb_A.png');
+
+
         this.updateRequest(scene => this.renderScene(scene));
 
         window.document.onkeypress = event => {
@@ -64,6 +72,7 @@ export default class Game extends React.Component {
                 case 100: this.move('right'); break;
                 case 119: this.move('up'); break;
                 case 115: this.move('down'); break;
+                case 32: this.shoot(); break;
             }
         }
     }
@@ -80,21 +89,36 @@ export default class Game extends React.Component {
         this.canvas.clear();
         const field = scene.field;
         const buildings = scene.buildings;
+        const bullets = scene.bullets;
         const tanks = scene.tanks;
+        const spriteMap = scene.spriteMap;
+        let sprite_map = {};
+        for(let i = 0; i < spriteMap.length; i ++){
+            sprite_map[spriteMap[i].name] = spriteMap[i];
+        }
         for (let i = 0; i < field.length; i++){
             for (let j = 0; j < field[i].length; j++){
-                if (field[j][i] === 0) this.canvas.drawImageScale(this.SPRITE.GRASS, i*50, j*50, 50, 50);
-                if (field[j][i] > 0) this.canvas.drawImageScale(this.SPRITE.DECOR, i*50, j*50, 50, 50);
+                if (field[j][i] === 0) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['GRASS'].x, sprite_map['GRASS'].y, sprite_map['GRASS'].width, sprite_map['GRASS'].height);
+                if (field[j][i] > 0 && field[j][i] <= 30) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_3'].x, sprite_map['STONE_3'].y, sprite_map['STONE_3'].width, sprite_map['STONE_3'].height);
+                if(field[j][i] > 30 && field[j][i] <= 70) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_2'].x, sprite_map['STONE_2'].y, sprite_map['STONE_2'].width, sprite_map['STONE_2'].height);
+                if(field[j][i] > 70) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_1'].x, sprite_map['STONE_1'].y, sprite_map['STONE_1'].width, sprite_map['STONE_1'].height);            
             }
         }
         
         for (let i = 0; i < buildings.length; i++) {
             if (buildings[i].team === '1')
-                this.canvas.drawImageScale(this.SPRITE.BUILDING_RED, buildings[i].x * 50, buildings[i].y * 50, buildings[i].width * 50, buildings[i].height * 50);
+                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, null, sprite_map['BASE_RED'].x, sprite_map['BASE_RED'].y, sprite_map['BASE_RED'].width, sprite_map['BASE_RED'].height); 
 
             if (buildings[i].team === '2')
-                this.canvas.drawImageScale(this.SPRITE.BUILDING_BLUE, buildings[i].x * 50, buildings[i].y * 50, buildings[i].width * 50, buildings[i].height * 50);
+                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, null, sprite_map['BASE_BLUE'].x, sprite_map['BASE_BLUE'].y, sprite_map['BASE_BLUE'].width, sprite_map['BASE_BLUE'].height); 
 
+        }
+        for(let i = 0; i < bullets.length; i ++){
+            if(bullets[i].type == 1){
+                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, bullets[i].direction, sprite_map['BULLET_LIGHT'].x, sprite_map['BULLET_LIGHT'].y, sprite_map['BULLET_LIGHT'].width, sprite_map['BULLET_LIGHT'].height); 
+            } else {
+                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, bullets[i].direction, sprite_map['BULLET_HEAVY'].x, sprite_map['BULLET_HEAVY'].y, sprite_map['BULLET_HEAVY'].width, sprite_map['BULLET_HEAVY'].height); 
+            }
         }
         for (let i = 0; i < tanks.length; i++) {
             if(tanks[i] !== undefined){

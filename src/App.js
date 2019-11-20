@@ -54,7 +54,8 @@ class App extends React.Component {
                 appState = {() => this.appState}
                 getConstructor = {() => this.server.getConstructor()}
                 setErrors = {err => this.setErrors(err)}
-                move = {(direction) => this.server.move(direction) }
+                move={(direction) => this.server.move(direction)}
+                shoot={() => this.server.shoot()}
               />
           : this.state.isRegistr
           ?

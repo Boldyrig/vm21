@@ -72,8 +72,11 @@ class Application {
     }
 
     public function shoot($params) {
-        if ($params['id']) {
-            return $this->vMech->shoot(intval($params['id']));
+        if ($params['token']) {
+           $user = $this->user->getUserByToken($params['token']);
+            if ($user) {
+                return $this->vMech->shoot($user->id);
+            }
         }
         return false;
     }

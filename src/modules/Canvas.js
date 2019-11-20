@@ -26,7 +26,7 @@ export default class Canvas {
         this.context.drawImage(img, x, y);
     }
 
-    drawImageScale(img, x, y, width, height, direction) {
+    drawImageScale(img, x, y, width, height, direction, sx = 0, sy = 0, swidth = img.width, sheight = img.height) {
         if(direction){
             let angle = 0;
             let dx = 0;
@@ -55,12 +55,12 @@ export default class Canvas {
             }
             this.context.translate(dx, dy);
             this.context.rotate(angle);
-            this.context.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
+            this.context.drawImage(img, sx, sy, swidth, sheight, 0, 0, width, height);
             this.context.rotate(-angle);
             this.context.translate(-dx, -dy);
             return;
         }
-        this.context.drawImage(img, 0, 0, img.width, img.height, x, y, width, height);
+        this.context.drawImage(img, sx, sy, swidth, sheight, x, y, width, height);
     }
 
     drawRect() {

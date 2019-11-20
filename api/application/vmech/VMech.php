@@ -69,7 +69,7 @@ class VMech {
 				$y >= $building->y &&
 				$y <= $building->y + $building->height - 1
 			) {
-				return true;
+				return $building;
 			}
 		}
 		return false;
@@ -139,6 +139,108 @@ class VMech {
 
 	//перемещение пуль
 	private function updateBullets() {
+		$bullets = $this->db->getBullets();
+		$tanks = $this->db->getTanks(); 
+		$buildings = $this->db->getBuildings();
+		$battle = $this->db->getBattle();
+		$blocks = $this->db->getField();
+		$field = $this->getField(
+			$battle->fieldX, 
+			$battle->fieldY, 
+			$blocks
+		);
+		// идем по массиву пуль
+		for ($i = 0; $i < count($bullets); $i++) {
+			$bullet = $bullets[$i];
+			if ($bullet->rangeBullet > 0) {
+				// уменьшить rangeBullet
+				$bullet->rangeBullet--;
+				// если rangeBullet < 0, то удалить пулю
+				if ($bullet->rangeBullet < 0) {
+					$this->db->deleteBulletById($bullet->id);
+					continue;
+				}
+				// подвинуть пулю
+				$x = $bullet->x;
+				$y = $bullet->y;
+				switch ($bullet->direction) {
+					case 'left' : $x --; break;
+					case 'right': $x ++; break;
+					case 'up'   : $y --; break; 
+					case 'down' : $y ++; break;
+				}
+				// если пуля улетела за край карты - удалить пулю
+				if ($y < 0 || $x < 0 || $y >= $battle->fieldY || $x >= $battle->fieldX) {
+					$this->db->deleteBulletById($bullet->id);
+					continue;
+				}
+				// если пуля воткнулась в стену - удалить пулю и нанести дамаг
+				if($field[$y][$x] > 0){
+					$gun = $this->db->getGun($bullet->type);
+					$damage = $gun->damage;
+					for ($j = 0; $j < count($blocks); $j++) {
+						if($blocks[$j]->x == $x && $blocks[$j]->y == $y) {
+							$this->db->deleteBulletById($bullet->id);
+							$field[$y][$x] -= $damage;
+							$blocks[$j]->hp -= $damage;
+							if($blocks[$j]->hp <= 0) {
+								$this->db->deleteBlockById($blocks[$j]->id);
+							} else {
+								$this->db->updateBlockById($blocks[$j]->id, $blocks[$j]->hp);
+							}
+							break;
+						}
+					}
+					continue;
+				}
+				// если пуля воткнулась в строение - удалить пулю и нанести дамаг и удалить строение (если надо)
+				if($building = $this->isInnerBuilding(intval($x), intval($y), $buildings)){
+					$gun = $this->db->getGun($bullet->type);
+					$damage = $gun->damage;
+					$building->hp -= $damage;
+					$this->db->deleteBulletById($bullet->id);
+					if($building->hp <= 0){
+						$this->db->deleteBuildingById($building->id);
+					} else {
+						$this->db->updateBuildingById($building->id, $building->hp);
+					}
+					continue;
+				}
+				// если пуля воткнулась в танк - удалить пулю и нанести дамаг и удалить танк (если надо)
+				if($tank = $this->getTankByXY(intval($x), intval($y), $tanks)){
+					$gun = $this->db->getGun($bullet->type);
+					$damage = $gun->damage;
+					$tank->hp -= $damage;
+					$this->db->deleteBulletById($bullet->id);
+					if($tank->hp <= 0){
+						$this->db->deleteTankById($tank->id);
+					} else {
+						$this->db->updateTankById($tank->id, $tank->hp);
+					}
+					continue;
+				}
+				// проапдейтить пулю
+				$this->db->updateBulletById($bullet->id, $x, $y, $bullet->rangeBullet);
+
+				/*
+				if ($y < 0 || $x < 0 || // если пытается уехать совсем влево или вверх
+					$field[$y][$x] > 0 // если на пути стена
+				) {
+					$this->db->deleteBulletById($bulletId);
+				}
+				if ($this->getTankByXY(intval($x), intval($y), $tanks)){ // если на пути танк
+						$this->db->deleteBulletById($bulletId);
+						//$this->db->damageTankByXY($x, $y);	
+				}
+				if	($this->isInnerBuilding(intval($x), intval($y), $buildings)) { // если на пути строение
+						$this->db->deleteBulletById($bulletId);
+				}
+				*/
+			}
+		}
+	}
+
+	/*private function updateBullets() {
 		// идем по массиву пуль
 		for ($i = 0; $i < count($this->bullets); $i++) {
 			$bullet = $this->bullets[$i];
@@ -179,7 +281,7 @@ class VMech {
 			$bullet->x = $x;
 			$bullet->y = $y;
 		}
-	}
+	}*/
 
     /*public function getTanks() { return $this->tanks; }
 	public function getBullets() { return $this->bullets; }
@@ -188,42 +290,46 @@ class VMech {
 
 	// переместить танк
     public function move($userId, $direction) {
-		$tanks = $this->db->getTanks();
+		$tanks = $this->db->getTanks(); 
 		$buildings = $this->db->getBuildings();
 		$tank = $this->getTankById($userId, $tanks);
 		if ($tank) {
-			$battle = $this->db->getBattle();
-			$field = $this->getField(
-				$battle->fieldX, 
-				$battle->fieldY, 
-				$this->db->getField()
-			);
-			$x = $tank->x;
-			$y = $tank->y;
-			switch ($direction) {
-				case 'left': $x--; break;
-				case 'right': $x++; break;
-				case 'up': $y--; break;
-				case 'down': $y++; break;
+			$timeStamp = round(microtime(true) * 1000);
+			$moveTimeStamp = $tank->moveTimeStamp;
+			$speed = $this->db->getSpeed($tank->shassisType)->speed;
+			if ($timeStamp - $moveTimeStamp >= $speed){
+				$battle = $this->db->getBattle();
+				$field = $this->getField(
+					$battle->fieldX, 
+					$battle->fieldY, 
+					$this->db->getField()
+				);
+				$x = $tank->x;
+				$y = $tank->y;
+				switch ($direction) {
+					case 'left': $x--; break;
+					case 'right': $x++; break;
+					case 'up': $y--; break;
+					case 'down': $y++; break;
+				}
+				//print_r($this->isInnerBuilding($x, $y, $buildings));
+				// проверить наличие препятствий движению
+				if ($y < 0 || $x < 0 || // если пытается уехать совсем влево или вверх
+					$y >= count($field) || // если пытается уехать вниз
+					$x >= count($field[$y]) || // если пытается уехать вправо
+					$field[$y][$x] > 0 || // если на пути стена
+					$this->getTankByXY(intval($x), intval($y), $tanks) || // если на пути танк
+					$this->isInnerBuilding(intval($x), intval($y), $buildings) // если на пути строение
+				) {
+					return false;
+				}
+				// если на пути объект
+				/*$object = $this->getObjectByXY($x, $y);
+				if ($object) {
+					$this->raiseObject($object, $tank);
+				}*/
+				return $this->db->updateTankXY($tank->id, $x, $y, $direction, $timeStamp);
 			}
-			//print_r($this->isInnerBuilding($x, $y, $buildings));
-			// проверить наличие препятствий движению
-			if ($y < 0 || $x < 0 || // если пытается уехать совсем влево или вверх
-				$y >= count($field) || // если пытается уехать вниз
-				$x >= count($field[$y]) || // если пытается уехать вправо
-				$field[$y][$x] > 0 || // если на пути стена
-				$this->getTankByXY(intval($x), intval($y), $tanks) || // если на пути танк
-				$this->isInnerBuilding(intval($x), intval($y), $buildings) // если на пути строение
-			) {
-				return false;
-			}
-			// если на пути объект
-			/*$object = $this->getObjectByXY($x, $y);
-			if ($object) {
-				$this->raiseObject($object, $tank);
-			}*/
-			//return $this->getTankByXY(5, 2, $tanks);
-			return $this->db->updateTankXY($tank->id, $x, $y, $direction);
 		}
 		return false;
 	}
@@ -242,14 +348,13 @@ class VMech {
 
 
 	// выстрел (добавление пули в массив пулей)
-	public function shoot($tankId) {		
-		$tank = $this->getTankById($tankId); // взять танк по id
+	public function shoot($userId) {
+		$tank = $this->db->getTankByUserId($userId); // взять танк по user_id
 		if ($tank) {
 			$gun = $this->db->getGun($tank->gunType); // взять его орудие		
 			// проверить прошло ли время перезарядки
 			$currentTime = round(microtime(true) * 1000); // текущее время
-			if ($currentTime - $tank->reloadTimestamp >= $gun->reloadTime) {
-				$tank->reloadTimestamp = $currentTime; // изменить время перезарядки у танка
+			if ($currentTime - $tank->reloadTimeStamp >= $gun->reloadTime) {
 				$y = $tank->y;
 				$x = $tank->x;
 				// пуля создается в след ячейке от танка
@@ -259,8 +364,8 @@ class VMech {
 					case 'up': $y--;   break; 
 					case 'down': $y++; break; 
 				}  
-				$this->bullets[] = $this->createBullet($x, $y, $tank, $gun); // добавить новую пулю в массив пуль
-				return true;
+				$this->db->updateReloadTimeStamp($tank->id, $currentTime); // изменить время перезарядки у танка
+				return $this->db->addBullet($x, $y, $tank->direction, $gun->id, $gun->rangeFire); // добавить новую пулю в массив пуль
 			}
 		}
 		return false;
@@ -275,9 +380,6 @@ class VMech {
 		+ $scene->field = $field;
 		return $scene;
 	}*/
-
-
-
 
 	private function getField($fieldX, $fieldY, $field) {
 		$grassField = array();
@@ -300,14 +402,16 @@ class VMech {
 			$battle = $this->db->getBattle(); // взять битву из БД
 			$users = $this->db->getUsers();
 			$tanks = $this->db->getTanks();
+			$bullets = $this->db->getBullets();
 			$buildings = $this->db->getBuildings();
+
 			$timeStamp = $battle->timeStamp; // текущее время в битве
 			$updateTime = $battle->updateTime; // время ДО обновления
 			$currentTime = round(microtime(true) * 1000); // текущее время
 			if ($currentTime - $timeStamp >= $updateTime) { // прошло достаточно времени
 				// обновить сцену и вернуть её на клиент
 				$this->db->updateBattleTimeStamp($battle->id, $currentTime);
-				//$this->updateBullets();// сдвигаем пули
+				$this->updateBullets();// сдвигаем пули
 				$scene = new stdClass();
 				$scene->field = $this->getField(
 										$battle->fieldX, 
@@ -316,6 +420,8 @@ class VMech {
 									);
 				$scene->tanks = $tanks;
 				$scene->buildings = $buildings;
+				$scene->bullets = $bullets;
+				$scene->spriteMap = $this->db->getSpriteMap();
 				return $scene;
 			}
 			return false;
@@ -385,7 +491,6 @@ class VMech {
 				return $this->db->addTank(
 					$userId, 
 					$team->id, 
-					$gun->reloadTime, 
 					$hull->hp,
 					$hull->cargo,
 					$hull->id,

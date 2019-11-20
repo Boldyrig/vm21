@@ -20,7 +20,7 @@ export default class Server {
         const answer = await response.json();
         return (answer && answer.result === 'ok') ? 
                 answer.data : 
-                (method !== 'update' && method !== 'move') ? 
+                (method !== 'update' && method !== 'move' && method !== 'shoot') ? 
                     this.error(answer.error) :
                     false;
     }
@@ -80,7 +80,7 @@ export default class Server {
     }
 
     shoot(id) {
-        return this.send('shoot', { id });
+        return this.send('shoot');
     }
 
     updateScene(cb) {

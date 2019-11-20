@@ -86,24 +86,36 @@ class DB {
     public function getShassi($id) { return $this->getDataById('shassis', $id); }
     public function getTeam($id) { return $this->getDataById('team', $id); }
 
-    public function addTank($userId, $teamId, $reloadTime, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
+    public function addTank($userId, $teamId, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
         // удалить все танки игрока
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
         $this->conn->query($query);
         // добавить танк игрока
         $query = 'INSERT INTO tanks 
-                (user_id, team, x, y, reloadTime, hp, cargo, hullType, gunType, shassisType ) 
+                (user_id, team, x, y, hp, cargo, hullType, gunType, shassisType ) 
                 VALUES 
                 ('.$userId.', 
                  '.$teamId.',
 				 '.$x.',
 				 '.$y.',
-                 '.$reloadTime.', 
                  '.$hp.', 
                  '.$cargo.', '.$hullId.', '.$gunId.', '.$shassiId.')';
         $this->conn->query($query);
         return true;
     }
+
+	public function addBullet($x, $y, $direction, $type, $rangeBullet){
+		$query = 'INSERT INTO bullets 
+                (x, y, direction, type, rangeBullet)
+				VALUES 
+                ('.$x.', 
+                 '.$y.',
+				 "'.$direction.'",
+				 '.$type.',
+                 '.$rangeBullet.')';
+		$this->conn->query($query);
+        return true;
+	}
 
     public function getBattle() {
         $query = 'SELECT * FROM battle';
@@ -129,22 +141,78 @@ class DB {
         return true;
     }
 
-    public function updateTankXY($id, $x, $y, $direction) {
-        $query = 'UPDATE  tanks SET  x='.$x.', y= '.$y.', direction = "'.$direction.'" WHERE id='.$id;
+    public function updateTankXY($id, $x, $y, $direction, $timeStamp) {
+        $query = 'UPDATE  tanks SET  x='.$x.', y= '.$y.', direction = "'.$direction.'", moveTimeStamp = '.$timeStamp.' WHERE id='.$id;
         $this->conn->query($query);
         return true;
     }
 
-    public function getField(){
-        return $this->getAllData('field');
+    public function getField(){ return $this->getAllData('field'); }
+	public function getTanks(){ return $this->getAllData('tanks'); }
+	public function getBuildings(){ return $this->getAllData('building'); }
+    public function getBullets(){ return $this->getAllData('bullets'); }
+    public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
+    
+    public function getSpeed($shassisType){
+        return $this->getDataById('shassis', $shassisType);
     }
 
-	public function getTanks(){
-        return $this->getAllData('tanks');
-    }
-
-	public function getBuildings(){
-		return $this->getAllData('building');
+	public function getTankByUserId($userId){
+		return $this->getDataByUserId('tanks', $userId);
 	}
+
+	public function deleteBulletById($bulletId){
+		$query = 'DELETE FROM bullets WHERE id=' . $bulletId;
+        $this->conn->query($query);
+		return true;
+    }
+    
+    public function deleteBlockById($blockId){
+		$query = 'DELETE FROM field WHERE id=' . $blockId;
+        $this->conn->query($query);
+		return true;
+    }
+    
+    public function deleteBuildingById($buildingId){
+		$query = 'DELETE FROM building WHERE id=' . $buildingId;
+        $this->conn->query($query);
+		return true;
+    }
+
+    public function deleteTankById($tankId){
+		$query = 'DELETE FROM tanks WHERE id=' . $tankId;
+        $this->conn->query($query);
+		return true;
+    }
+    
+    public function updateBlockById($blockId, $hp) {
+        $query = 'UPDATE field SET hp='.$hp.' WHERE id='.$blockId;
+        $this->conn->query($query);
+        return true;
+    }
+
+	public function updateBulletById($bulletId, $x, $y, $rangeBullet) {
+        $query = 'UPDATE bullets SET x='.$x.', y= '.$y.', rangeBullet = '.$rangeBullet.' WHERE id='.$bulletId;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateReloadTimeStamp($id, $timeStamp) {
+        $query = 'UPDATE tanks SET reloadTimeStamp='.$timeStamp.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateBuildingById($buildingId, $hp) {
+        $query = 'UPDATE building SET hp='.$hp.' WHERE id='.$buildingId;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateTankById($tankId, $hp) {
+        $query = 'UPDATE tanks SET hp='.$hp.' WHERE id='.$tankId;
+        $this->conn->query($query);
+        return true;
+    }
 
 }
