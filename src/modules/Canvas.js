@@ -26,6 +26,43 @@ export default class Canvas {
         this.context.drawImage(img, x, y);
     }
 
+    drawImageFromSpriteMap(img, x, y, width, height, spriteMap, name, direction = null){
+        if(direction){
+            let angle = 0;
+            let dx = 0;
+            let dy = 0;
+            switch(direction) {
+                case 'up':
+                    angle = 0;
+                    dx = x;
+                    dy = y;
+                    break;
+                case 'down':
+                    angle = Math.PI;
+                    dx = x + width;
+                    dy = y + height;
+                    break;
+                case 'left':
+                    angle = -Math.PI/2;
+                    dx = x;
+                    dy = y + height;
+                    break;
+                case 'right':
+                    angle = Math.PI/2;
+                    dx = x + width;
+                    dy = y;
+                    break;
+            }
+            this.context.translate(dx, dy);
+            this.context.rotate(angle);
+            this.context.drawImage(img, spriteMap[name].x, spriteMap[name].y, spriteMap[name].width, spriteMap[name].height, 0, 0, width, height);
+            this.context.rotate(-angle);
+            this.context.translate(-dx, -dy);
+            return;
+        }
+        this.context.drawImage(img, spriteMap[name].x, spriteMap[name].y, spriteMap[name].width, spriteMap[name].height, x, y, width, height);
+    }
+
     drawImageScale(img, x, y, width, height, direction, sx = 0, sy = 0, swidth = img.width, sheight = img.height) {
         if(direction){
             let angle = 0;

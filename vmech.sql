@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Ноя 20 2019 г., 14:02
+-- Время создания: Ноя 20 2019 г., 17:46
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.1.22
 
@@ -42,7 +42,7 @@ CREATE TABLE `battle` (
 --
 
 INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`) VALUES
-(1, 1574247599522, 1200, 10, 10, 250);
+(1, 1574261078788, 1200, 10, 10, 250);
 
 -- --------------------------------------------------------
 
@@ -65,9 +65,8 @@ CREATE TABLE `building` (
 --
 
 INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`) VALUES
-(1, 1, 8, 8, 1000, 2, 2),
-(2, 2, 0, 0, 700, 2, 2),
-(3, 1, 5, 5, 1000, 2, 2);
+(2, 2, 0, 0, 620, 2, 2),
+(3, 1, 5, 5, 860, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -103,12 +102,8 @@ CREATE TABLE `field` (
 --
 
 INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
-(18, 2, 2, 60),
-(19, 4, 6, 100),
-(20, 9, 1, 100),
 (21, 3, 9, 60),
-(22, 3, 5, 100),
-(23, 7, 1, 20);
+(22, 3, 5, 100);
 
 -- --------------------------------------------------------
 
@@ -134,7 +129,7 @@ CREATE TABLE `gun` (
 
 INSERT INTO `gun` (`id`, `reloadTime`, `rangeFire`, `damage`, `speed`, `price`, `name`, `title`, `image`) VALUES
 (1, 1000, 10, 20, 8, 300, 'GUN_LIGHT', '', 'Tanks/GUN_A_1.png'),
-(2, 1500, 12, 30, 5, 500, 'GUN_HEAVY', '', 'Tanks/GUN_B_1.png');
+(2, 1500, 12, 300, 5, 500, 'GUN_HEAVY', '', 'Tanks/GUN_B_1.png');
 
 -- --------------------------------------------------------
 
@@ -225,10 +220,10 @@ INSERT INTO `sprite_map` (`id`, `name`, `x`, `y`, `team`, `width`, `height`) VAL
 (5, 'HULL_LIGHT_BLUE', 150, 150, 2, 150, 150),
 (6, 'HULL_HEAVY_RED', 0, 300, 1, 150, 150),
 (7, 'HULL_HEAVY_BLUE', 0, 150, 2, 150, 150),
-(8, 'GUN_LIGHT_RED', 300, 300, 1, 150, 150),
-(9, 'GUN_LIGHT_BLUE', 300, 150, 2, 150, 150),
-(10, 'GUN_HEAVY_RED', 450, 300, 1, 150, 150),
-(11, 'GUN_HEAVY_BLUE', 450, 150, 2, 150, 150),
+(8, 'GUN_LIGHT_RED', 450, 300, 1, 150, 150),
+(9, 'GUN_LIGHT_BLUE', 450, 150, 2, 150, 150),
+(10, 'GUN_HEAVY_RED', 300, 300, 1, 150, 150),
+(11, 'GUN_HEAVY_BLUE', 300, 150, 2, 150, 150),
 (12, 'BOMB_RED', 600, 300, 1, 150, 150),
 (13, 'BOMB_BLUE', 450, 300, 2, 150, 150),
 (14, 'BULLET_LIGHT', 900, 300, 0, 150, 150),
@@ -272,7 +267,7 @@ CREATE TABLE `tanks` (
 --
 
 INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTimeStamp`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`, `moveTimeStamp`) VALUES
-(249, 1, 1, 7, 6, 'up', 1574247593534, 20, 20, 1, 1, 1, 1574247597720);
+(264, 2, 2, 8, 5, 'down', 1574261064130, 30, 30, 2, 2, 2, 1574261066971);
 
 -- --------------------------------------------------------
 
@@ -315,7 +310,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
 (1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '', 750),
-(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', 'a9a9422380034494afb8b100560f4428', 300),
+(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '', 298550),
 (3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', '', 300);
 
 --
@@ -415,7 +410,7 @@ ALTER TABLE `building`
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=409;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=446;
 
 --
 -- AUTO_INCREMENT для таблицы `field`
@@ -457,7 +452,7 @@ ALTER TABLE `sprite_map`
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=250;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=265;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

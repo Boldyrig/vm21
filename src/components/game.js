@@ -98,56 +98,57 @@ export default class Game extends React.Component {
         }
         for (let i = 0; i < field.length; i++){
             for (let j = 0; j < field[i].length; j++){
-                if (field[j][i] === 0) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['GRASS'].x, sprite_map['GRASS'].y, sprite_map['GRASS'].width, sprite_map['GRASS'].height);
-                if (field[j][i] > 0 && field[j][i] <= 30) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_3'].x, sprite_map['STONE_3'].y, sprite_map['STONE_3'].width, sprite_map['STONE_3'].height);
-                if(field[j][i] > 30 && field[j][i] <= 70) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_2'].x, sprite_map['STONE_2'].y, sprite_map['STONE_2'].width, sprite_map['STONE_2'].height);
-                if(field[j][i] > 70) this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, null, sprite_map['STONE_1'].x, sprite_map['STONE_1'].y, sprite_map['STONE_1'].width, sprite_map['STONE_1'].height);            
+                if(field[j][i] === 0) this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, sprite_map, 'GRASS');
+                if(field[j][i] > 0 && field[j][i] <= 30) this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, sprite_map, 'STONE_3');
+                if(field[j][i] > 30 && field[j][i] <= 70) this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, sprite_map, 'STONE_2');
+                if(field[j][i] > 70) this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, i*50, j*50, 50, 50, sprite_map, 'STONE_1');
             }
         }
         
         for (let i = 0; i < buildings.length; i++) {
             if (buildings[i].team === '1')
-                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, null, sprite_map['BASE_RED'].x, sprite_map['BASE_RED'].y, sprite_map['BASE_RED'].width, sprite_map['BASE_RED'].height); 
+            this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_RED');
 
             if (buildings[i].team === '2')
-                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, null, sprite_map['BASE_BLUE'].x, sprite_map['BASE_BLUE'].y, sprite_map['BASE_BLUE'].width, sprite_map['BASE_BLUE'].height); 
+            this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_BLUE');
 
         }
         for(let i = 0; i < bullets.length; i ++){
             if(bullets[i].type == 1){
-                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, bullets[i].direction, sprite_map['BULLET_LIGHT'].x, sprite_map['BULLET_LIGHT'].y, sprite_map['BULLET_LIGHT'].width, sprite_map['BULLET_LIGHT'].height); 
+                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_LIGHT', bullets[i].direction);
             } else {
-                this.canvas.drawImageScale(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, bullets[i].direction, sprite_map['BULLET_HEAVY'].x, sprite_map['BULLET_HEAVY'].y, sprite_map['BULLET_HEAVY'].width, sprite_map['BULLET_HEAVY'].height); 
+                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_HEAVY', bullets[i].direction);
             }
         }
         for (let i = 0; i < tanks.length; i++) {
             if(tanks[i] !== undefined){
+                console.log(tanks[i]);
                 if (tanks[i].team === '1'){
                     // шасси
-                    if (tanks[i].shassisType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].shassisType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    console.log(tanks[i].x + ' ' + tanks[i].y);
+                    if (tanks[i].shassisType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_LIGHT', tanks[i].direction);
+                    if (tanks[i].shassisType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_HEAVY', tanks[i].direction);
                     //корпус
-                    if (tanks[i].hullType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].hullType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    if (tanks[i].hullType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'HULL_LIGHT_RED', tanks[i].direction);
+                    if (tanks[i].hullType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'HULL_HEAVY_RED', tanks[i].direction);
                     //оружие
-                    if (tanks[i].gunType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].gunType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_RED, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    if (tanks[i].gunType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_LIGHT_RED', tanks[i].direction);
+                    if (tanks[i].gunType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_HEAVY_RED', tanks[i].direction);
                 }
                 if (tanks[i].team === '2'){
-                    //шасси
-                    if (tanks[i].shassisType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_LIGHT, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].shassisType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_SHASSI_HARD, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    // шасси
+                    if (tanks[i].shassisType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_LIGHT', tanks[i].direction);
+                    if (tanks[i].shassisType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_HEAVY', tanks[i].direction);
                     //корпус
-                    if (tanks[i].hullType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].hullType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_HULL_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    if (tanks[i].hullType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'HULL_LIGHT_BLUE', tanks[i].direction);
+                    if (tanks[i].hullType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'HULL_HEAVY_BLUE', tanks[i].direction);
                     //оружие
-                    if (tanks[i].gunType === '1') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_LIGHT_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
-                    if (tanks[i].gunType === '2') this.canvas.drawImageScale(this.SPRITE.TANK_GUN_HARD_BLUE, tanks[i].x * 50, tanks[i].y * 50, 50, 50, tanks[i].direction);
+                    if (tanks[i].gunType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_LIGHT_BLUE', tanks[i].direction);
+                    if (tanks[i].gunType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_HEAVY_BLUE', tanks[i].direction);
                 }
 
             } else if (tanks[i] === undefined) {
-                document.getElementsByClassName('tankConstructor')[0].style.display = 'block';
-                document.getElementById('canvas').style.display = 'none';    
+                continue;   
             } 
         }
         
