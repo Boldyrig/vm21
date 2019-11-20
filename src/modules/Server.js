@@ -17,6 +17,7 @@ export default class Server {
             arr.push(`token=${this.token}`);
         }
         const response = await fetch(`${this.HOST}method=${method}&${arr.join('&')}`);
+        console.log(response);
         const answer = await response.json();
         return (answer && answer.result === 'ok') ? 
                 answer.data : 

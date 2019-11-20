@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Ноя 20 2019 г., 17:46
+-- Время создания: Ноя 20 2019 г., 18:41
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.1.22
 
@@ -42,7 +42,20 @@ CREATE TABLE `battle` (
 --
 
 INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`) VALUES
-(1, 1574261078788, 1200, 10, 10, 250);
+(1, 1574262001996, 1200, 10, 10, 250);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `booms`
+--
+
+CREATE TABLE `booms` (
+  `id` int(11) NOT NULL,
+  `x` int(11) NOT NULL,
+  `y` int(11) NOT NULL,
+  `timeLife` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -66,7 +79,7 @@ CREATE TABLE `building` (
 
 INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`) VALUES
 (2, 2, 0, 0, 620, 2, 2),
-(3, 1, 5, 5, 860, 2, 2);
+(3, 1, 5, 5, 820, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -96,14 +109,6 @@ CREATE TABLE `field` (
   `y` int(11) NOT NULL,
   `hp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Дамп данных таблицы `field`
---
-
-INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
-(21, 3, 9, 60),
-(22, 3, 5, 100);
 
 -- --------------------------------------------------------
 
@@ -267,7 +272,7 @@ CREATE TABLE `tanks` (
 --
 
 INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTimeStamp`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`, `moveTimeStamp`) VALUES
-(264, 2, 2, 8, 5, 'down', 1574261064130, 30, 30, 2, 2, 2, 1574261066971);
+(266, 1, 1, 6, 3, 'left', 1574261987457, 20, 20, 1, 1, 1, 1574261990539);
 
 -- --------------------------------------------------------
 
@@ -321,6 +326,12 @@ INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
 -- Индексы таблицы `battle`
 --
 ALTER TABLE `battle`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `booms`
+--
+ALTER TABLE `booms`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -401,6 +412,12 @@ ALTER TABLE `battle`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT для таблицы `booms`
+--
+ALTER TABLE `booms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `building`
 --
 ALTER TABLE `building`
@@ -410,7 +427,7 @@ ALTER TABLE `building`
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=446;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=461;
 
 --
 -- AUTO_INCREMENT для таблицы `field`
@@ -452,7 +469,7 @@ ALTER TABLE `sprite_map`
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=265;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=267;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

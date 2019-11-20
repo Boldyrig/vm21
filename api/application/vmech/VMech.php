@@ -191,6 +191,7 @@ class VMech {
 							break;
 						}
 					}
+					$this->db->addBoom($x, $y);
 					continue;
 				}
 				// если пуля воткнулась в строение - удалить пулю и нанести дамаг и удалить строение (если надо)
@@ -204,6 +205,7 @@ class VMech {
 					} else {
 						$this->db->updateBuildingById($building->id, $building->hp);
 					}
+					$this->db->addBoom($x, $y);
 					continue;
 				}
 				// если пуля воткнулась в танк - удалить пулю и нанести дамаг и удалить танк (если надо)
@@ -217,6 +219,7 @@ class VMech {
 					} else {
 						$this->db->updateTankById($tank->id, $tank->hp);
 					}
+					$this->db->addBoom($x, $y);
 					continue;
 				}
 				// проапдейтить пулю
@@ -225,10 +228,17 @@ class VMech {
 		}
 	}
 
-    /*public function getTanks() { return $this->tanks; }
-	public function getBullets() { return $this->bullets; }
-	public function getBuildings() { return $this->buildings; }
-	public function getObjects() { return $this->objects; } */
+	private function updateBooms(){
+		$booms = $this->db->getBooms();
+		for($i = 0; $i < count($booms); $i ++){
+			$booms[$i]->timeLife--;
+			if($booms[$i]->timeLife <= 0){
+				$this->db->deleteBoomById($booms[$i]->id);
+			} else {
+				$this->db->updateBoomById($booms[$i]->id, $booms[$i]->timeLife);
+			}
+		}
+	}
 
 	// переместить танк
     public function move($userId, $direction) {
@@ -300,12 +310,12 @@ class VMech {
 				$y = $tank->y;
 				$x = $tank->x;
 				// пуля создается в след ячейке от танка
-				switch ($tank->direction) {
-					case 'left': $x--;  break;
-					case 'right': $x++; break;
-					case 'up': $y--;   break; 
-					case 'down': $y++; break; 
-				}  
+				// switch ($tank->direction) {
+				// 	case 'left': $x--;  break;
+				// 	case 'right': $x++; break;
+				// 	case 'up': $y--;   break; 
+				// 	case 'down': $y++; break; 
+				// }  
 				$this->db->updateReloadTimeStamp($tank->id, $currentTime); // изменить время перезарядки у танка
 				return $this->db->addBullet($x, $y, $tank->direction, $gun->id, $gun->rangeFire); // добавить новую пулю в массив пуль
 			}
@@ -342,17 +352,14 @@ class VMech {
 	public function updateScene() {
 		if ($this->checkEndGame()) {
 			$battle = $this->db->getBattle(); // взять битву из БД
-			$users = $this->db->getUsers();
-			$tanks = $this->db->getTanks();
-			$bullets = $this->db->getBullets();
-			$buildings = $this->db->getBuildings();
-
+			
 			$timeStamp = $battle->timeStamp; // текущее время в битве
 			$updateTime = $battle->updateTime; // время ДО обновления
 			$currentTime = round(microtime(true) * 1000); // текущее время
 			if ($currentTime - $timeStamp >= $updateTime) { // прошло достаточно времени
 				// обновить сцену и вернуть её на клиент
 				$this->db->updateBattleTimeStamp($battle->id, $currentTime);
+				$this->updateBooms();
 				$this->updateBullets();// сдвигаем пули
 				$scene = new stdClass();
 				$scene->field = $this->getField(
@@ -360,10 +367,11 @@ class VMech {
 										$battle->fieldY, 
 										$this->db->getField()
 									);
-				$scene->tanks = $tanks;
-				$scene->buildings = $buildings;
-				$scene->bullets = $bullets;
+				$scene->tanks = $this->db->getTanks();
+				$scene->buildings = $this->db->getBuildings();
+				$scene->bullets = $this->db->getBullets();
 				$scene->spriteMap = $this->db->getSpriteMap();
+				$scene->booms = $this->db->getBooms();
 				return $scene;
 			}
 			return false;

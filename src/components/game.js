@@ -91,6 +91,7 @@ export default class Game extends React.Component {
         const buildings = scene.buildings;
         const bullets = scene.bullets;
         const tanks = scene.tanks;
+        const booms = scene.booms;
         const spriteMap = scene.spriteMap;
         let sprite_map = {};
         for(let i = 0; i < spriteMap.length; i ++){
@@ -149,6 +150,10 @@ export default class Game extends React.Component {
 
             } else if (tanks[i] === undefined) {
                 continue;   
+            }
+
+            for(let i = 0; i < booms.length; i++){
+                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
             } 
         }
         

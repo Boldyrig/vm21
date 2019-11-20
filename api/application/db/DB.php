@@ -109,6 +109,7 @@ class DB {
 	public function getTanks(){ return $this->getAllData('tanks'); }
 	public function getBuildings(){ return $this->getAllData('building'); }
     public function getBullets(){ return $this->getAllData('bullets'); }
+    public function getBooms(){ return $this->getAllData('booms'); }
     
     public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
 
@@ -142,7 +143,14 @@ class DB {
                  '.$rangeBullet.')';
 		$this->conn->query($query);
         return true;
-	}
+    }
+    
+    addBoom
+    public function addBoom($x, $y){
+		$query = 'INSERT INTO booms (x, y) VALUES ('.$x.', '.$y.')';
+		$this->conn->query($query);
+        return true;
+    }
 
     public function updateBattleTimeStamp($id, $timeStamp) {
         $query = 'UPDATE battle SET timeStamp='.$timeStamp.' WHERE id='.$id;
@@ -174,6 +182,12 @@ class DB {
         return true;
     }
 
+    public function updateBoomById($boomId, $timeLife){
+        $query = 'UPDATE booms SET timeLife='.$timeLife.' WHERE id='.$boomId;
+        $this->conn->query($query);
+        return true;
+    }
+
     public function updateBlockById($blockId, $hp) {return $this->UpdateHpById('field', $hp, $blockId); }
     public function updateBuildingById($buildingId, $hp) {return $this->UpdateHpById('building', $hp, $buildingId); }
     public function updateTankById($tankId, $hp) {return $this->UpdateHpById('tanks', $hp, $tankId); }
@@ -188,5 +202,5 @@ class DB {
     public function deleteBlockById($blockId){return $this->DeleteById('field', $blockId); }
     public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
     public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
-
+    public function deleteBoomById($boomId){return $this->DeleteById('booms', $boomId); }
 }
