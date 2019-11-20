@@ -221,67 +221,9 @@ class VMech {
 				}
 				// проапдейтить пулю
 				$this->db->updateBulletById($bullet->id, $x, $y, $bullet->rangeBullet);
-
-				/*
-				if ($y < 0 || $x < 0 || // если пытается уехать совсем влево или вверх
-					$field[$y][$x] > 0 // если на пути стена
-				) {
-					$this->db->deleteBulletById($bulletId);
-				}
-				if ($this->getTankByXY(intval($x), intval($y), $tanks)){ // если на пути танк
-						$this->db->deleteBulletById($bulletId);
-						//$this->db->damageTankByXY($x, $y);	
-				}
-				if	($this->isInnerBuilding(intval($x), intval($y), $buildings)) { // если на пути строение
-						$this->db->deleteBulletById($bulletId);
-				}
-				*/
 			}
 		}
 	}
-
-	/*private function updateBullets() {
-		// идем по массиву пуль
-		for ($i = 0; $i < count($this->bullets); $i++) {
-			$bullet = $this->bullets[$i];
-			$x = $bullet->x;
-			$y = $bullet->y;
-			// по направлению пули меняем координаты на speed
-			switch ($bullet->direction) {
-				case 'left': $x -= $bullet->speed; break;
-				case 'right': $x += $bullet->speed; break;
-				case 'up': $y -= $bullet->speed; break; 
-				case 'down': $y += $bullet->speed; break;
-			}
-			//проверка на range
-			if ($bullet->distance > $bullet->range) {
-				array_splice($this->bullets, $i, 1);
-				return false;
-			}
-			$bullet->distance += $bullet->speed;
-			// идем по клеткам, которые пролетела пуля
-			for ($j = 0; $j < $bullet->speed; $j++) {
-				$xs = $x - $bullet->x > 0 ? $j : $x - $bullet->x < 0 ? -$j : 0; // смещение по x
-				$ys = $y - $bullet->y > 0 ? -$j : $y - $bullet->y < 0 ? $j : 0; // смещение по y
-				// если на одной из клеток стояло здание
-				$building = $this->isInnerBuilding($bullet->x + $xs, $bullet->y + $ys);
-				if ($building) {
-					$this->damage($building, $bullet);
-					array_splice($this->bullets, $i, 1);
-					return;
-				}
-				// если на одной из клеток стоял танк
-				$tank = $this->getTankByXY($bullet->x + $xs, $bullet->y + $ys);
-				if ($tank) {
-					$this->damage($tank, $bullet);
-					array_splice($this->bullets, $i, 1);
-					return;
-				}	
-			} 
-			$bullet->x = $x;
-			$bullet->y = $y;
-		}
-	}*/
 
     /*public function getTanks() { return $this->tanks; }
 	public function getBullets() { return $this->bullets; }

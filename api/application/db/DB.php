@@ -69,13 +69,26 @@ class DB {
         return $this->oneRecord($result);
     }
 
+    public function getAllUsers() { return $this->getAllData('users'); }
+
+	public function addUsers($login, $hash , $token){
+		$query = 'INSERT INTO users (login, password , token) VALUES ("'.$login . '" , "' . $hash . '" , "' . $token .'")';
+		$this->conn->query($query);
+        return true;
+    }
+
     public function updateToken($id, $token) {
         $query = 'UPDATE users SET token="' . $token . '" WHERE id=' . $id;
         $this->conn->query($query);
         return true;
     }
+    
+    public function updateUserMoney($id, $money) {
+        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
+        $this->conn->query($query);
+        return true;
+    }
 
-    public function getAllUsers() { return $this->getAllData('users'); }
     public function getHulls() { return $this->getAllData('hull'); }
     public function getGuns() { return $this->getAllData('gun'); }
     public function getShassis() { return $this->getAllData('shassis'); }
@@ -86,11 +99,25 @@ class DB {
     public function getShassi($id) { return $this->getDataById('shassis', $id); }
     public function getTeam($id) { return $this->getDataById('team', $id); }
 
+    public function getBattle() {
+        $query = 'SELECT * FROM battle';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
+    public function getField(){ return $this->getAllData('field'); }
+	public function getTanks(){ return $this->getAllData('tanks'); }
+	public function getBuildings(){ return $this->getAllData('building'); }
+    public function getBullets(){ return $this->getAllData('bullets'); }
+    
+    public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
+
+    public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
+	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
+
     public function addTank($userId, $teamId, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
-        // удалить все танки игрока
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
         $this->conn->query($query);
-        // добавить танк игрока
         $query = 'INSERT INTO tanks 
                 (user_id, team, x, y, hp, cargo, hullType, gunType, shassisType ) 
                 VALUES 
@@ -117,24 +144,6 @@ class DB {
         return true;
 	}
 
-    public function getBattle() {
-        $query = 'SELECT * FROM battle';
-        $result = $this->conn->query($query);
-        return $this->oneRecord($result);
-    }
-
-	public function addUsers($login, $hash , $token){
-		$query = 'INSERT INTO users (login, password , token) VALUES ("'.$login . '" , "' . $hash . '" , "' . $token .'")';
-		$this->conn->query($query);
-        return true;
-    }
-    
-    public function updateUserMoney($id, $money) {
-        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
-        $this->conn->query($query);
-        return true;
-    }
-
     public function updateBattleTimeStamp($id, $timeStamp) {
         $query = 'UPDATE battle SET timeStamp='.$timeStamp.' WHERE id='.$id;
         $this->conn->query($query);
@@ -147,51 +156,7 @@ class DB {
         return true;
     }
 
-    public function getField(){ return $this->getAllData('field'); }
-	public function getTanks(){ return $this->getAllData('tanks'); }
-	public function getBuildings(){ return $this->getAllData('building'); }
-    public function getBullets(){ return $this->getAllData('bullets'); }
-    public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
-    
-    public function getSpeed($shassisType){
-        return $this->getDataById('shassis', $shassisType);
-    }
-
-	public function getTankByUserId($userId){
-		return $this->getDataByUserId('tanks', $userId);
-	}
-
-	public function deleteBulletById($bulletId){
-		$query = 'DELETE FROM bullets WHERE id=' . $bulletId;
-        $this->conn->query($query);
-		return true;
-    }
-    
-    public function deleteBlockById($blockId){
-		$query = 'DELETE FROM field WHERE id=' . $blockId;
-        $this->conn->query($query);
-		return true;
-    }
-    
-    public function deleteBuildingById($buildingId){
-		$query = 'DELETE FROM building WHERE id=' . $buildingId;
-        $this->conn->query($query);
-		return true;
-    }
-
-    public function deleteTankById($tankId){
-		$query = 'DELETE FROM tanks WHERE id=' . $tankId;
-        $this->conn->query($query);
-		return true;
-    }
-    
-    public function updateBlockById($blockId, $hp) {
-        $query = 'UPDATE field SET hp='.$hp.' WHERE id='.$blockId;
-        $this->conn->query($query);
-        return true;
-    }
-
-	public function updateBulletById($bulletId, $x, $y, $rangeBullet) {
+    public function updateBulletById($bulletId, $x, $y, $rangeBullet) {
         $query = 'UPDATE bullets SET x='.$x.', y= '.$y.', rangeBullet = '.$rangeBullet.' WHERE id='.$bulletId;
         $this->conn->query($query);
         return true;
@@ -203,16 +168,25 @@ class DB {
         return true;
     }
 
-    public function updateBuildingById($buildingId, $hp) {
-        $query = 'UPDATE building SET hp='.$hp.' WHERE id='.$buildingId;
+    public function UpdateHpById($tableName, $hp, $id) {
+        $query = 'UPDATE '.$tableName.' SET hp='.$hp.' WHERE id='.$id;
         $this->conn->query($query);
         return true;
     }
 
-    public function updateTankById($tankId, $hp) {
-        $query = 'UPDATE tanks SET hp='.$hp.' WHERE id='.$tankId;
+    public function updateBlockById($blockId, $hp) {return $this->UpdateHpById('field', $hp, $blockId); }
+    public function updateBuildingById($buildingId, $hp) {return $this->UpdateHpById('building', $hp, $buildingId); }
+    public function updateTankById($tankId, $hp) {return $this->UpdateHpById('tanks', $hp, $tankId); }
+
+    public function DeleteById($tableName, $id) {
+        $query = 'DELETE FROM '.$tableName.' WHERE id=' . $id;
         $this->conn->query($query);
-        return true;
+		return true;
     }
+
+	public function deleteBulletById($bulletId){return $this->DeleteById('bullets', $bulletId); }
+    public function deleteBlockById($blockId){return $this->DeleteById('field', $blockId); }
+    public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
+    public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
 
 }
