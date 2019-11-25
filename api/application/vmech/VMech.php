@@ -429,15 +429,6 @@ class VMech {
 				$x = intval($base->x) + intval($base->width) + rand(0,1);
 				$y = intval($base->y) + rand(0, intval($base->height)-1);
 			}
-			
-			//проверка есть ли танк в этой точке
-			for($i=0; $i<count($tanks); $i++){    
-				if($tanks[$i]->x == $x && $tanks[$i]->y == $y){
-					if($tank[$i]->team == 1){
-						$x--;
-					} elseif $x++;
-				} 
-			}
 
 			// проверить, что хватает баблишка
 			$battle = $this->db->getBattle(); 
