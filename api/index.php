@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <?php//1
+=======
+<?php//11
+>>>>>>> 45a928328e9f48d8cb32168cb0c5bf5a6a7427ec
 error_reporting(-1);
 header('Access-Control-Allow-Origin: *');
 require_once('application/Application.php');
