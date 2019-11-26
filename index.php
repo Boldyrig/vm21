@@ -1,4 +1,4 @@
-<?php
+<?php//new project
 error_reporting(-1);
 header('Access-Control-Allow-Origin: *');
 require_once('application/Application.php');
