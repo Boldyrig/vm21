@@ -50,6 +50,7 @@ class App extends React.Component {
             <Game
                 setAuth = {val => this.setAuth(val)}
                 updateRequest = {cb => this.server.updateScene(cb)}
+                stopRequest = {() => this.server.stopUpdate()}
                 addTankRequest = {val => this.server.addTank(val)}
                 appState = {() => this.appState}
                 getConstructor = {() => this.server.getConstructor()}

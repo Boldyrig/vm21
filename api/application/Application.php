@@ -73,7 +73,7 @@ class Application {
 
     public function shoot($params) {
         if ($params['token']) {
-           $user = $this->user->getUserByToken($params['token']);
+            $user = $this->user->getUserByToken($params['token']);
             if ($user) {
                 return $this->vMech->shoot($user->id);
             }
@@ -83,7 +83,13 @@ class Application {
 
 
     public function updateScene($params) {
-        return $this->vMech->updateScene();
+        if ($params['token']) { 
+            $user = $this->user->getUserByToken($params['token']);
+            if ($user) {
+                return $this->vMech->updateScene($user->id);
+            }
+        }
+        return false;
     }
 
     public function joinGame($params) {

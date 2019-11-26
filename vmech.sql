@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Ноя 20 2019 г., 18:41
+-- Время создания: Ноя 26 2019 г., 08:53
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.1.22
 
@@ -34,15 +34,17 @@ CREATE TABLE `battle` (
   `defaultMoney` int(11) NOT NULL,
   `fieldX` int(11) NOT NULL,
   `fieldY` int(11) NOT NULL,
-  `updateTime` int(11) NOT NULL COMMENT 'сколько должно пройти времени до обновления сцены'
+  `updateTime` int(11) NOT NULL COMMENT 'сколько должно пройти времени до обновления сцены',
+  `rewardTank` int(11) NOT NULL,
+  `rewardBase` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `battle`
 --
 
-INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`) VALUES
-(1, 1574262001996, 1200, 10, 10, 250);
+INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`, `rewardTank`, `rewardBase`) VALUES
+(1, 1574747525392, 1200, 20, 20, 50, 500, 10000);
 
 -- --------------------------------------------------------
 
@@ -54,7 +56,7 @@ CREATE TABLE `booms` (
   `id` int(11) NOT NULL,
   `x` int(11) NOT NULL,
   `y` int(11) NOT NULL,
-  `timeLife` int(11) NOT NULL DEFAULT 1
+  `timeLife` int(11) NOT NULL DEFAULT 5
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -70,16 +72,17 @@ CREATE TABLE `building` (
   `y` int(11) NOT NULL DEFAULT 0,
   `hp` int(11) NOT NULL,
   `width` int(11) NOT NULL,
-  `height` int(11) NOT NULL
+  `height` int(11) NOT NULL,
+  `type` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Дамп данных таблицы `building`
 --
 
-INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`) VALUES
-(2, 2, 0, 0, 620, 2, 2),
-(3, 1, 5, 5, 820, 2, 2);
+INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`, `type`) VALUES
+(30, 1, 11, 1, 100, 2, 2, 'base'),
+(31, 2, 7, 17, 100, 2, 2, 'base');
 
 -- --------------------------------------------------------
 
@@ -94,7 +97,8 @@ CREATE TABLE `bullets` (
   `direction` varchar(11) NOT NULL,
   `type` int(11) NOT NULL,
   `rangeBullet` int(11) NOT NULL,
-  `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0
+  `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0,
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -109,6 +113,28 @@ CREATE TABLE `field` (
   `y` int(11) NOT NULL,
   `hp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `field`
+--
+
+INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
+(297, 2, 0, 100),
+(298, 4, 13, 100),
+(299, 5, 1, 100),
+(300, 5, 3, 100),
+(301, 6, 8, 100),
+(302, 7, 6, 100),
+(303, 7, 12, 100),
+(304, 7, 13, 100),
+(305, 11, 9, 100),
+(306, 12, 6, 100),
+(307, 12, 13, 100),
+(308, 12, 16, 100),
+(309, 14, 4, 100),
+(310, 15, 19, 100),
+(311, 17, 0, 100),
+(312, 17, 1, 100);
 
 -- --------------------------------------------------------
 
@@ -267,13 +293,6 @@ CREATE TABLE `tanks` (
   `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Дамп данных таблицы `tanks`
---
-
-INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTimeStamp`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`, `moveTimeStamp`) VALUES
-(266, 1, 1, 6, 3, 'left', 1574261987457, 20, 20, 1, 1, 1, 1574261990539);
-
 -- --------------------------------------------------------
 
 --
@@ -314,8 +333,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
-(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '', 750),
-(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '', 298550),
+(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '24b79a647cb5b23a9b6ff1a64a29aadf', 200),
+(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '318bfaf735be74dd8259b6ddb2019d7e', 100),
 (3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', '', 300);
 
 --
@@ -415,25 +434,25 @@ ALTER TABLE `battle`
 -- AUTO_INCREMENT для таблицы `booms`
 --
 ALTER TABLE `booms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=216;
 
 --
 -- AUTO_INCREMENT для таблицы `building`
 --
 ALTER TABLE `building`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=461;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=817;
 
 --
 -- AUTO_INCREMENT для таблицы `field`
 --
 ALTER TABLE `field`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=313;
 
 --
 -- AUTO_INCREMENT для таблицы `gun`
@@ -469,7 +488,7 @@ ALTER TABLE `sprite_map`
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=267;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=381;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

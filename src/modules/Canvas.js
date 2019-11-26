@@ -10,8 +10,8 @@ export default class Canvas {
         if(this.canvas){
             this.context = this.canvas.getContext('2d');
             //Настройки размера окна
-            this.canvas.width = options.width || 500;
-            this.canvas.height = options.height || 500;
+            this.canvas.width = options.width || 1000;
+            this.canvas.height = options.height || 1000;
         }
     }
 

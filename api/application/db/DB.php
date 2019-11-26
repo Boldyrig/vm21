@@ -84,7 +84,7 @@ class DB {
     }
     
     public function updateUserMoney($id, $money) {
-        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
+        $query = 'UPDATE users SET money = money + '.$money.' WHERE id=' . $id;
         $this->conn->query($query);
         return true;
     }
@@ -115,6 +115,7 @@ class DB {
 
     public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
 	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
+	public function getBaseById($id){ return $this->getDataById('building', id); }
 
     public function addTank($userId, $teamId, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
@@ -132,22 +133,43 @@ class DB {
         return true;
     }
 
-	public function addBullet($x, $y, $direction, $type, $rangeBullet){
+	public function addBullet($x, $y, $direction, $type, $rangeBullet, $user_id){
 		$query = 'INSERT INTO bullets 
-                (x, y, direction, type, rangeBullet)
+                (x, y, direction, type, rangeBullet, user_id)
 				VALUES 
                 ('.$x.', 
                  '.$y.',
 				 "'.$direction.'",
 				 '.$type.',
-                 '.$rangeBullet.')';
+                 '.$rangeBullet.',
+                 '.$user_id.')';
 		$this->conn->query($query);
         return true;
     }
+
+    public function addBuilding($team, $x, $y, $hp, $width, $height, $type) {
+        $query = 'INSERT INTO building 
+                (team, x, y, hp, width, height, type )
+                VALUES 
+                ('.$team.', 
+                 '.$x.',
+                 '.$y.',
+                 '.$hp.',
+                 '.$width.',
+                 '.$height.',
+                 "'.$type.'")';
+        $this->conn->query($query);
+        return true;
+    }
     
-    addBoom
     public function addBoom($x, $y){
 		$query = 'INSERT INTO booms (x, y) VALUES ('.$x.', '.$y.')';
+		$this->conn->query($query);
+        return true;
+    }
+
+    public function addBlock($x, $y, $hp) {
+        $query = 'INSERT INTO field (x, y, hp) VALUES ('.$x.', '.$y.', '.$hp.')';
 		$this->conn->query($query);
         return true;
     }
@@ -197,10 +219,40 @@ class DB {
         $this->conn->query($query);
 		return true;
     }
+    
 
 	public function deleteBulletById($bulletId){return $this->DeleteById('bullets', $bulletId); }
     public function deleteBlockById($blockId){return $this->DeleteById('field', $blockId); }
     public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
     public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
     public function deleteBoomById($boomId){return $this->DeleteById('booms', $boomId); }
+    
+    public function deleteAllData($tableName){
+        $query = 'DELETE FROM '.$tableName;
+        $this->conn->query($query);
+		return true;
+    }
+
+    public function deleteAllTank(){return $this->deleteAllData('tanks'); }
+    public function deleteAllBuilding(){return $this->deleteAllData('building'); }
+    public function deleteAllObject(){return $this->deleteAllData('objects'); }
+    public function deleteAllBlock(){return $this->deleteAllData('field'); }
+    public function deleteAllBullet(){return $this->deleteAllData('bullets'); }
+    public function deleteAllBoom(){return $this->deleteAllData('booms'); }
+
+    public function isTankExists($userId) {
+        return $this->getDataByUserId('tanks', $userId);
+    }
+
+    public function getBaseCount(){
+        $query = 'SELECT COUNT(type) AS count FROM building WHERE type="base"';
+        $result = $this->conn->query($query);
+        return intval($this->oneRecord($result)->count);
+    }
+
+	public function getBaseByTeamId($teamId) {
+        $query = 'SELECT * FROM building WHERE team=' . $teamId;
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
 }

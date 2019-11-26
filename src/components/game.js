@@ -8,6 +8,7 @@ export default class Game extends React.Component {
         // коллбеки
         this.setAuth = props.setAuth;
         this.updateRequest = props.updateRequest;
+        this.stopRequest = props.stopRequest;
         this.addTankRequest = props.addTankRequest;
         this.appState = props.appState();
         this.getConstructor = props.getConstructor;
@@ -20,51 +21,57 @@ export default class Game extends React.Component {
         // спрайты (картинки)
         this.SPRITE = {
             SPRITE_MAP: new window.Image(),
-            GRASS: new window.Image(),
-            DECOR: new window.Image(),
-            BUILDING_RED: new window.Image(),
-            BUILDING_BLUE: new window.Image(),
-            TANK_SHASSI_LIGHT: new window.Image(),
-            TANK_SHASSI_HARD: new window.Image(),
-            TANK_GUN_LIGHT_RED: new window.Image(),
-            TANK_GUN_HARD_RED: new window.Image(),
-            TANK_GUN_LIGHT_BLUE: new window.Image(),
-            TANK_GUN_HARD_BLUE: new window.Image(),
-            TANK_HULL_LIGHT_RED: new window.Image(),
-            TANK_HULL_HARD_RED: new window.Image(),
-            TANK_HULL_LIGHT_BLUE: new window.Image(),
-            TANK_HULL_HARD_BLUE: new window.Image(),
-            BULLET: new window.Image()
+            // GRASS: new window.Image(),
+            // DECOR: new window.Image(),
+            // BUILDING_RED: new window.Image(),
+            // BUILDING_BLUE: new window.Image(),
+            // TANK_SHASSI_LIGHT: new window.Image(),
+            // TANK_SHASSI_HARD: new window.Image(),
+            // TANK_GUN_LIGHT_RED: new window.Image(),
+            // TANK_GUN_HARD_RED: new window.Image(),
+            // TANK_GUN_LIGHT_BLUE: new window.Image(),
+            // TANK_GUN_HARD_BLUE: new window.Image(),
+            // TANK_HULL_LIGHT_RED: new window.Image(),
+            // TANK_HULL_HARD_RED: new window.Image(),
+            // TANK_HULL_LIGHT_BLUE: new window.Image(),
+            // TANK_HULL_HARD_BLUE: new window.Image(),
+            // BULLET: new window.Image()
         };
 
         this.SPRITE.SPRITE_MAP.src = require('../img/Map/map_sprite.png');
-        /*поле*/
-        this.SPRITE.GRASS.src = require('../img/Blocks/Grass_A.png');
-        this.SPRITE.DECOR.src = require('../img/Blocks/Decor_B.png');
+        // /*поле*/
+        // this.SPRITE.GRASS.src = require('../img/Blocks/Grass_A.png');
+        // this.SPRITE.DECOR.src = require('../img/Blocks/Decor_B.png');
 
-        //BASE
-        this.SPRITE.BUILDING_RED.src = require('../img/Building/Base_red.png');
-        this.SPRITE.BUILDING_BLUE.src = require('../img/Building/Base_blue.png');
+        // //BASE
+        // this.SPRITE.BUILDING_RED.src = require('../img/Building/Base_red.png');
+        // this.SPRITE.BUILDING_BLUE.src = require('../img/Building/Base_blue.png');
 
-        this.SPRITE.TANK_SHASSI_LIGHT.src = require('../img/Tanks/kolesa.png');
-        this.SPRITE.TANK_SHASSI_HARD.src = require('../img/Tanks/gusen.png');
-        /*красная команда*/ 
-        this.SPRITE.TANK_GUN_LIGHT_RED.src = require('../img/Tanks/light_gun_red.png');
-        this.SPRITE.TANK_GUN_HARD_RED.src = require('../img/Tanks/gun_hard_red.png');
+        // this.SPRITE.TANK_SHASSI_LIGHT.src = require('../img/Tanks/kolesa.png');
+        // this.SPRITE.TANK_SHASSI_HARD.src = require('../img/Tanks/gusen.png');
+        // /*красная команда*/ 
+        // this.SPRITE.TANK_GUN_LIGHT_RED.src = require('../img/Tanks/light_gun_red.png');
+        // this.SPRITE.TANK_GUN_HARD_RED.src = require('../img/Tanks/gun_hard_red.png');
 
-        this.SPRITE.TANK_HULL_LIGHT_RED.src = require('../img/Tanks/Light_hull_red.png');
-        this.SPRITE.TANK_HULL_HARD_RED.src = require('../img/Tanks/hull_hard_red.png');
-        /*синяя команда*/
-        this.SPRITE.TANK_GUN_LIGHT_BLUE.src = require('../img/Tanks/gun_light_blue.png');
-        this.SPRITE.TANK_GUN_HARD_BLUE.src = require('../img/Tanks/gun_hard_blue.png');
+        // this.SPRITE.TANK_HULL_LIGHT_RED.src = require('../img/Tanks/Light_hull_red.png');
+        // this.SPRITE.TANK_HULL_HARD_RED.src = require('../img/Tanks/hull_hard_red.png');
+        // /*синяя команда*/
+        // this.SPRITE.TANK_GUN_LIGHT_BLUE.src = require('../img/Tanks/gun_light_blue.png');
+        // this.SPRITE.TANK_GUN_HARD_BLUE.src = require('../img/Tanks/gun_hard_blue.png');
 
-        this.SPRITE.TANK_HULL_LIGHT_BLUE.src = require('../img/Tanks/hull_light_blue.png');
-        this.SPRITE.TANK_HULL_HARD_BLUE.src = require('../img/Tanks/hull_hard_blue.png');
+        // this.SPRITE.TANK_HULL_LIGHT_BLUE.src = require('../img/Tanks/hull_light_blue.png');
+        // this.SPRITE.TANK_HULL_HARD_BLUE.src = require('../img/Tanks/hull_hard_blue.png');
+        // this.SPRITE.BULLET.src = require('../img/Tanks/Bomb_A.png');
 
-        this.SPRITE.BULLET.src = require('../img/Tanks/Bomb_A.png');
-
-
-        this.updateRequest(scene => this.renderScene(scene));
+        this.updateRequest(scene => {
+            if (scene && (scene.die || scene.gameover)) {
+                this.stopRequest(); // stop update scene
+                alert("Ты подох"); // write: 'Ты подох!!!'
+                this.setConstructed(false); // go to constructor
+            } else {
+                this.renderScene(scene);
+            }
+        });
 
         window.document.onkeypress = event => {
             switch (event.keyCode) {
@@ -123,10 +130,8 @@ export default class Game extends React.Component {
         }
         for (let i = 0; i < tanks.length; i++) {
             if(tanks[i] !== undefined){
-                console.log(tanks[i]);
                 if (tanks[i].team === '1'){
                     // шасси
-                    console.log(tanks[i].x + ' ' + tanks[i].y);
                     if (tanks[i].shassisType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_LIGHT', tanks[i].direction);
                     if (tanks[i].shassisType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_HEAVY', tanks[i].direction);
                     //корпус
@@ -153,7 +158,22 @@ export default class Game extends React.Component {
             }
 
             for(let i = 0; i < booms.length; i++){
-                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
+                if(booms[i].timeLife == 4){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_4');
+
+                }
+                if(booms[i].timeLife == 3){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_3');
+
+                }
+                if(booms[i].timeLife == 2){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_2');
+
+                }
+                if(booms[i].timeLife == 1){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
+
+                }
             } 
         }
         
