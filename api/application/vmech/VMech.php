@@ -1,9 +1,4 @@
 <?php
-//require_once('types/Tank.php');
-//require_once('types/Bullet.php');
-//require_once('types/Building.php');
-//require_once('types/Objects.php');
-
 class VMech {
     function __construct($db) {
 		$this->db = $db;
