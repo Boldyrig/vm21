@@ -57,5 +57,4 @@ class Registr extends React.Component {
         );
     }
 }
-
 export default Registr;

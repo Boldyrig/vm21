@@ -174,9 +174,8 @@ export default class Game extends React.Component {
                     this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
 
                 }
-            } 
+            }
         }
-        
     }
 
     logout() {
