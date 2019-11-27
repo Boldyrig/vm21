@@ -84,7 +84,7 @@ class DB {
     }
     
     public function updateUserMoney($id, $money) {
-        $query = 'UPDATE users SET money = money + '.$money.' WHERE id=' . $id;
+        $query = 'UPDATE users SET money='.$money.' WHERE id=' . $id;
         $this->conn->query($query);
         return true;
     }
@@ -133,16 +133,15 @@ class DB {
         return true;
     }
 
-	public function addBullet($x, $y, $direction, $type, $rangeBullet, $user_id){
+	public function addBullet($x, $y, $direction, $type, $rangeBullet){
 		$query = 'INSERT INTO bullets 
-                (x, y, direction, type, rangeBullet, user_id)
+                (x, y, direction, type, rangeBullet)
 				VALUES 
                 ('.$x.', 
                  '.$y.',
 				 "'.$direction.'",
 				 '.$type.',
-                 '.$rangeBullet.',
-                 '.$user_id.')';
+                 '.$rangeBullet.')';
 		$this->conn->query($query);
         return true;
     }

@@ -156,7 +156,7 @@ class VMech {
 				// уменьшить rangeBullet
 				$bullet->rangeBullet--;
 				// если rangeBullet < 0, то удалить пулю
-				if ($bullet->rangeBullet < 0) {
+				if ($bullet->rangeBullet <= 0) {
 					$this->db->deleteBulletById($bullet->id);
 					continue;
 				}
@@ -200,17 +200,7 @@ class VMech {
 					$damage = $gun->damage;
 					$tank->hp -= $damage;
 					if($tank->hp <= 0){
-						//найти танк, который выстрелил пулю
-						$fireTeam = $this->db->getTankByUserId($bullet->user_id)->team;
-						//если команды танков разные, то + бабло
-						if ($fireTeam == $tank->team){
-							$reward = -intval($battle->rewardTank);	
-						}else {
-							$reward = intval($battle->rewardTank);
-						}
-						//иначе минус бабло
 						$this->db->deleteTankById($tank->id);
-						$this->db->updateUserMoney($bullet->user_id,$reward);
 					} else {
 						$this->db->updateTankById($tank->id, $tank->hp);
 					}
@@ -225,14 +215,7 @@ class VMech {
 					$building->hp -= $damage;
 					$this->db->deleteBulletById($bullet->id);
 					if($building->hp <= 0){
-						$fireTeam = $this->db->getTankByUserId($bullet->user_id)->team;
-						if ($fireTeam == $building->team){
-							$reward = -intval($battle->rewardBase);	
-						}else {
-							$reward = intval($battle->rewardBase);
-						}
 						$this->db->deleteBuildingById($building->id);
-						$this->db->updateUserMoney($bullet->user_id,$reward);
 					} else {
 						$this->db->updateBuildingById($building->id, $building->hp);
 					}
@@ -278,16 +261,14 @@ class VMech {
 		$buildings = $this->db->getBuildings();
 		$tank = $this->getTankById($userId, $tanks);
 		if ($tank) {
+			$speed = $this->db->getSpeed($tank->shassisType)->speed;
+			$timeStamp = round(microtime(true) * 1000);
+			$moveTimeStamp = $tank->moveTimeStamp;
 			if($tank->direction != $direction) {
-				$timeStamp = round(microtime(true) * 1000);
-				$moveTimeStamp = $tank->moveTimeStamp;
 				if ($timeStamp - $moveTimeStamp >= $speed){
 					return $this->db->updateTankXY($tank->id, $tank->x, $tank->y, $direction, $timeStamp);
 				}	
 			}
-			$timeStamp = round(microtime(true) * 1000);
-			$moveTimeStamp = $tank->moveTimeStamp;
-			$speed = $this->db->getSpeed($tank->shassisType)->speed;
 			if ($timeStamp - $moveTimeStamp >= $speed){
 				$battle = $this->db->getBattle();
 				$field = $this->getField(
@@ -313,10 +294,11 @@ class VMech {
 				) {
 					return false;
 				}
+
+				return $this->db->updateTankXY($tank->id, $x, $y, $direction, $timeStamp);
 			}
 			// если на пути объект
 			//..
-			return $this->db->updateTankXY($tank->id, $x, $y, $direction, $timeStamp);
 		}
 		return false;
 	}
@@ -337,7 +319,7 @@ class VMech {
 				$y = $tank->y;
 				$x = $tank->x;
 				$this->db->updateReloadTimeStamp($tank->id, $currentTime); // изменить время перезарядки у танка
-				return $this->db->addBullet($x, $y, $tank->direction, $gun->id, $gun->rangeFire, $userId); // добавить новую пулю в массив пуль
+				return $this->db->addBullet($x, $y, $tank->direction, $gun->id, $gun->rangeFire); // добавить новую пулю в массив пуль
 			}
 		}
 		return false;
@@ -409,6 +391,40 @@ class VMech {
 		return $grassField;
 	}
 
+	private function isBlock($x, $y, $blocks){
+		for($i = 0; $i < count($blocks); $i ++){
+			if($x == $blocks[$i]->x && $y == $blocks[$i]->y){
+				return $blocks[$i];
+			}
+		}
+		return null;
+	}
+
+	private function randomPointAroudBase($base, $radius){
+		$buildings = $this->db->getBuildings();
+		$blocks = $this->db->getField();
+		$battle = $this->db->getBattle();
+		$points = array();//массив точек вокруг базы
+		if($radius > 0){
+			for($i = $base->x - $radius; $i < $base->x + $base->width + $radius; $i ++){
+				for($j = $base->y - $radius; $j < $base->y + $base->height + $radius; $j ++){
+					if( $i >= 0 && $i < $battle->fieldX &&
+						$j >= 0 && $j < $battle->fieldY && 
+						!$this->isInnerBuilding($i, $j, $buildings) && 
+						!$this->isBlock($i, $j, $blocks)
+						){//точка не может быть вне карты, на камне, в здании
+						$point = new stdClass();
+						$point->x = $i;
+						$point->y = $j;
+						$points[] = $point;
+					}
+				}
+			}
+		}
+		$rnd = random_int(0, count($points));//рандомим номер точки
+		return $points[$rnd];
+	}
+
 	// обновить и вернуть сцену
 	public function updateScene($userId) {
 		if ($this->db->isTankExists($userId)) {
@@ -473,15 +489,19 @@ class VMech {
 		if ($team && $hull && $gun && $shassi && $money) {
 			$base = $this->db->getBaseByTeamId($team->id);
 			// переписали этот говна кусок
-			if ($base->team == 1) {
-				$x = intval($base->x) + rand(1,intval($base->width));
-				$y = intval($base->y) + rand(-1, intval($base->height)-1);
-			}
-			if ($base->team == 2) {
-				$x = intval($base->x) - intval($base->width) + rand(0,1);
-				$y = intval($base->y) + rand(0, intval($base->height)-1);
-			}
-			// проверить, что хватает баблишка
+			// if ($base->team == 1) {
+			// 	$x = intval($base->x) - rand(1,intval($base->width));
+			// 	$y = intval($base->y) + rand(-1, intval($base->height)-1);
+			// }
+			// if ($base->team == 2) {
+			// 	$x = intval($base->x) + intval($base->width) + rand(0,1);
+			// 	$y = intval($base->y) + rand(0, intval($base->height)-1);
+			// }
+			//рандомим точку вокруг базы в радиусе 2
+			$randomPoint = $this->randomPointAroudBase($base, 2);
+			$x = $randomPoint->x;
+			$y = $randomPoint->y;
+			//проверить, что хватает баблишка
 			$battle = $this->db->getBattle(); 
 			$defaultMoney = $battle->defaultMoney;
 			$price = $hull->price + $gun->price + $shassi->price;
