@@ -1,4 +1,5 @@
 export default class Server {
+
     constructor(setError){
         this.setError = setError;
     }

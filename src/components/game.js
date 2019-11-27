@@ -73,12 +73,16 @@ export default class Game extends React.Component {
             }
         });
 
-        window.document.onkeypress = event => {
+        window.document.onkeydown = event => {
             switch (event.keyCode) {
-                case 97: this.move('left'); break; 
-                case 100: this.move('right'); break;
-                case 119: this.move('up'); break;
-                case 115: this.move('down'); break;
+                case 65: this.move('left'); break;//a
+                case 37: this.move('left'); break;//стрелка влево
+                case 68: this.move('right'); break;//d
+                case 39: this.move('right'); break;//стрелка вправо
+                case 87: this.move('up'); break;//w
+                case 38: this.move('up'); break;//стрелка вверх
+                case 83: this.move('down'); break;//s
+                case 40: this.move('down'); break;//стрелка вниз
                 case 32: this.shoot(); break;
             }
         }
@@ -176,6 +180,7 @@ export default class Game extends React.Component {
                 }
             }
         }
+        
     }
 
     logout() {
