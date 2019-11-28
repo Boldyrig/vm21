@@ -69,6 +69,12 @@ class DB {
         return $this->oneRecord($result);
     }
 
+    public function getUserById($id) {
+        $query = 'SELECT * FROM users WHERE id="' . $id . '"';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
     public function getAllUsers() { return $this->getAllData('users'); }
 
 	public function addUsers($login, $hash , $token){
