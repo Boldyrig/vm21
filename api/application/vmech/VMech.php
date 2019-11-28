@@ -235,7 +235,7 @@ class VMech {
 		}
 	}
 
-	private function getScene($battle){
+	private function getScene($battle, $userId){
 		$scene = new stdClass();
 		$scene->field = $this->getField(
 								$battle->fieldX, 
@@ -247,6 +247,7 @@ class VMech {
 		$scene->bullets = $this->db->getBullets();
 		$scene->spriteMap = $this->db->getSpriteMap();
 		$scene->booms = $this->db->getBooms();
+		$scene->userMoney = $this->db->getUserById($userId)->money;
 		return $scene;
 	}
 
@@ -339,7 +340,7 @@ class VMech {
 		for($i = 0; $i < $battle->fieldX; $i++) {
 			for($j = 0; $j < $battle->fieldY; $j++) {
 				$random = rand(0, 100);
-				if($random < 5) {
+				if($random < 40) {
 					$this->db->addBlock($i, $j, 100);
 				}
 			}
@@ -416,7 +417,7 @@ class VMech {
 				}
 			}
 		}
-		$rnd = random_int(0, count($points));//рандомим номер точки
+		$rnd = random_int(0, count($points) - 1);//рандомим номер точки
 		return $points[$rnd];
 	}
 
@@ -433,7 +434,7 @@ class VMech {
 					$this->db->updateBattleTimeStamp($battle->id, $currentTime);
 					$this->updateBooms();
 					$this->updateBullets();// сдвигаем пули
-					return $this->getScene($battle);
+					return $this->getScene($battle, $userId);
 				}
 				return false;
 			}

@@ -16,7 +16,8 @@ export default class Game extends React.Component {
         this.move = props.move;
         this.shoot = props.shoot;
         this.state = {
-            isConstructed: false
+            isConstructed: false,
+            money: this.appState.money
         }
         // спрайты (картинки)
         this.SPRITE = {
@@ -98,6 +99,7 @@ export default class Game extends React.Component {
 
     renderScene(scene) {
         this.canvas.clear();
+        if(scene.userMoney != this.state.money) this.setState({ money: scene.userMoney});
         const field = scene.field;
         const buildings = scene.buildings;
         const bullets = scene.bullets;
@@ -193,7 +195,7 @@ export default class Game extends React.Component {
                 <h1 className='game__name'>Game</h1>
                 <div className='menu'>
                     <div id='userInfo'>
-                        <span>Money: </span>{this.appState.money}<span> rub</span><br/>
+                        <span>Money: </span>{this.state.money}<span> rub</span><br/>
                         <span>Login: </span>{this.appState.login}
                     </div>
                 </div>
