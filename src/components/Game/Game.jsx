@@ -68,6 +68,7 @@ export default class Game extends React.Component {
         const bullets = scene.bullets;
         const tanks = scene.tanks;
         const booms = scene.booms;
+        const objects = scene.objects;
         const spriteMap = scene.spriteMap;
         let sprite_map = {};
         for(let i = 0; i < spriteMap.length; i++){
@@ -90,16 +91,11 @@ export default class Game extends React.Component {
             this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_BLUE');
 
         }
-        for(let i = 0; i < bullets.length; i ++){
-            if(bullets[i].type == 1){
-                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_LIGHT', bullets[i].direction);
-            } else {
-                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_HEAVY', bullets[i].direction);
-            }
+        for(let i = 0; i < objects.length; i ++) {
+            this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, objects[i].x*50, objects[i].y*50, 50, 50, sprite_map, 'LOOT');
         }
         for (let i = 0; i < tanks.length; i++) {
             if(tanks[i] !== undefined){
-                console.log(tanks[i]);
                 if (tanks[i].team === '1'){
                     // шасси
                     console.log(tanks[i].x + ' ' + tanks[i].y);
@@ -124,10 +120,16 @@ export default class Game extends React.Component {
                     if (tanks[i].gunType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_HEAVY_BLUE', tanks[i].direction);
                 }
 
-            } else if (tanks[i] === undefined) {
+            } else if (!tanks[i]) {
                 continue;   
             }
-
+            for(let i = 0; i < bullets.length; i ++){
+                if(bullets[i].type == 1){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_LIGHT', bullets[i].direction);
+                } else {
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_HEAVY', bullets[i].direction);
+                }
+            }
             for(let i = 0; i < booms.length; i++){
                 if(booms[i].timeLife == 4){
                     this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_4');

@@ -99,6 +99,7 @@ class DB {
     public function getGuns() { return $this->getAllData('gun'); }
     public function getShassis() { return $this->getAllData('shassis'); }
     public function getTeams() { return $this->getAllData('team'); }
+    public function getObjects() { return $this->getAllData('objects'); }
 
     public function getHull($id) { return $this->getDataById('hull', $id); }
     public function getGun($id) { return $this->getDataById('gun', $id); }
@@ -138,7 +139,11 @@ class DB {
         $this->conn->query($query);
         return true;
     }
-
+    public function addObject($x, $y, $count, $type){
+        $query = 'INSERT INTO objects (x, y, count, type) VALUES ('.$x.','.$y.','.$count.','.$type.')';
+        $this->conn->query($query);
+        return true;
+    }
 	public function addBullet($x, $y, $direction, $type, $rangeBullet){
 		$query = 'INSERT INTO bullets 
                 (x, y, direction, type, rangeBullet)
@@ -259,5 +264,17 @@ class DB {
         $query = 'SELECT * FROM building WHERE team=' . $teamId;
         $result = $this->conn->query($query);
         return $this->oneRecord($result);
+    }
+
+    public function getObjectByXY($x, $y){
+        $query = 'SELECT * FROM objects WHERE x = ' . $x . ' AND y = ' . $y;
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+    public function updateTankCargo($id, $cargo){
+        $query = 'UPDATE tanks SET cargo='.$cargo.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
     }
 }
