@@ -7,6 +7,7 @@ class TankConstructor extends React.Component {
         this.addTankRequest = props.addTankRequest;
         this.setConstructed = props.setConstructed;
         this.getConstructor = props.getConstructor;
+        this.constructorCB = props.constructorCB;
         this.constructor = null;
         this.loadConstructor();
         this.money = props.money;
@@ -20,6 +21,7 @@ class TankConstructor extends React.Component {
         this.constructor = await this.getConstructor();
         if(this.constructor) {
             this.setState({ isLoaded: true });
+            this.constructorCB(this.constructor);
         }
     }
 
@@ -65,6 +67,7 @@ class TankConstructor extends React.Component {
             arr.push(<div className='name__type'><p key={elem.toString()}>--{elem}--</p></div>);
             for(let i = 0; i < CONSTRUCTOR[elem].length; i++){
                 let item = CONSTRUCTOR[elem][i];
+                console.log();
                 arr.push(<div className='type'><label key={item.name.toString()}>
                             <input key={item.name.toString() + i} type='radio' name={elem} id={item.name}></input>
                             <img key={item.name.toString() + "_img"} className='constructorImages' src={require(`../../assets/img/${item.image}`)} alt='none' />
