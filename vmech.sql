@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Ноя 29 2019 г., 13:44
+-- Время создания: Дек 02 2019 г., 18:23
 -- Версия сервера: 10.3.13-MariaDB
 -- Версия PHP: 7.0.32
 
@@ -42,7 +42,7 @@ CREATE TABLE `battle` (
 --
 
 INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `updateTime`) VALUES
-(1, 1575024085775, 1200, 20, 20, 50);
+(1, 1575300232938, 1200, 20, 20, 20);
 
 -- --------------------------------------------------------
 
@@ -79,8 +79,8 @@ CREATE TABLE `building` (
 --
 
 INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`, `type`) VALUES
-(56, 1, 18, 11, 100, 2, 2, 'base'),
-(57, 2, 0, 7, 100, 2, 2, 'base');
+(56, 1, 18, 11, 490, 2, 2, 'base'),
+(57, 2, 0, 7, 500, 2, 2, 'base');
 
 -- --------------------------------------------------------
 
@@ -117,7 +117,6 @@ CREATE TABLE `field` (
 
 INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1538, 0, 3, 100),
-(1539, 0, 10, 100),
 (1540, 0, 11, 100),
 (1541, 0, 16, 100),
 (1542, 0, 17, 100),
@@ -125,15 +124,13 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1544, 1, 2, 100),
 (1545, 1, 3, 100),
 (1546, 1, 5, 100),
-(1547, 1, 6, 100),
+(1547, 1, 6, 20),
 (1548, 1, 7, 100),
 (1549, 1, 11, 100),
 (1550, 1, 13, 100),
 (1551, 1, 16, 100),
 (1552, 2, 0, 100),
 (1553, 2, 4, 100),
-(1554, 2, 9, 100),
-(1555, 2, 10, 100),
 (1556, 2, 11, 100),
 (1557, 2, 14, 100),
 (1558, 2, 15, 100),
@@ -144,8 +141,7 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1563, 3, 12, 100),
 (1564, 3, 17, 100),
 (1565, 4, 0, 100),
-(1566, 4, 3, 100),
-(1567, 4, 10, 100),
+(1566, 4, 3, 60),
 (1568, 4, 11, 100),
 (1569, 4, 13, 100),
 (1570, 4, 14, 100),
@@ -155,16 +151,12 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1574, 5, 1, 100),
 (1575, 5, 2, 100),
 (1576, 5, 3, 100),
-(1577, 5, 5, 100),
-(1578, 5, 9, 100),
-(1579, 5, 13, 100),
-(1580, 5, 16, 100),
+(1577, 5, 5, 80),
+(1580, 5, 16, 90),
 (1581, 5, 17, 100),
 (1582, 6, 1, 100),
 (1583, 6, 4, 100),
-(1584, 6, 6, 100),
 (1585, 6, 8, 100),
-(1586, 6, 9, 100),
 (1587, 6, 11, 100),
 (1588, 6, 14, 100),
 (1589, 6, 16, 100),
@@ -190,7 +182,6 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1609, 9, 1, 100),
 (1610, 9, 2, 100),
 (1611, 9, 7, 100),
-(1612, 9, 9, 100),
 (1613, 9, 10, 100),
 (1614, 9, 15, 100),
 (1615, 9, 18, 100),
@@ -198,7 +189,6 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1617, 10, 4, 100),
 (1618, 10, 5, 100),
 (1619, 10, 8, 100),
-(1620, 10, 9, 100),
 (1621, 10, 10, 100),
 (1622, 10, 13, 100),
 (1623, 10, 14, 100),
@@ -208,8 +198,8 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1627, 10, 19, 100),
 (1628, 11, 0, 100),
 (1629, 11, 1, 100),
-(1630, 11, 2, 100),
-(1631, 11, 13, 100),
+(1630, 11, 2, 40),
+(1631, 11, 13, 90),
 (1632, 12, 1, 100),
 (1633, 12, 7, 100),
 (1634, 12, 10, 100),
@@ -219,7 +209,7 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1638, 13, 0, 100),
 (1639, 13, 1, 100),
 (1640, 13, 5, 100),
-(1641, 13, 7, 100),
+(1641, 13, 7, 90),
 (1642, 13, 11, 100),
 (1643, 13, 12, 100),
 (1644, 13, 13, 100),
@@ -228,13 +218,13 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1647, 14, 2, 100),
 (1648, 14, 5, 100),
 (1649, 14, 6, 100),
-(1650, 14, 8, 100),
+(1650, 14, 8, 90),
 (1651, 14, 10, 100),
 (1652, 14, 12, 100),
 (1653, 14, 13, 100),
 (1654, 14, 18, 100),
 (1655, 14, 19, 100),
-(1656, 15, 8, 100),
+(1656, 15, 8, 80),
 (1657, 15, 10, 100),
 (1658, 15, 14, 100),
 (1659, 15, 15, 100),
@@ -244,16 +234,14 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1663, 16, 3, 100),
 (1664, 16, 4, 100),
 (1665, 16, 10, 100),
-(1666, 16, 11, 100),
+(1666, 16, 11, 60),
 (1667, 16, 12, 100),
-(1668, 16, 13, 100),
 (1669, 16, 16, 100),
 (1670, 17, 0, 100),
 (1671, 17, 1, 100),
 (1672, 17, 3, 100),
 (1673, 17, 5, 100),
-(1674, 17, 6, 100),
-(1675, 17, 13, 100),
+(1674, 17, 6, 30),
 (1676, 17, 14, 100),
 (1677, 17, 15, 100),
 (1678, 17, 19, 100),
@@ -261,11 +249,10 @@ INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
 (1680, 18, 2, 100),
 (1681, 18, 3, 100),
 (1682, 18, 4, 100),
-(1683, 18, 7, 100),
-(1684, 18, 9, 100),
-(1685, 18, 11, 100),
+(1683, 18, 7, 80),
+(1684, 18, 9, 80),
+(1685, 18, 11, 90),
 (1686, 18, 12, 100),
-(1687, 18, 14, 100),
 (1688, 18, 15, 100),
 (1689, 18, 19, 100),
 (1690, 19, 0, 100),
@@ -298,8 +285,8 @@ CREATE TABLE `gun` (
 --
 
 INSERT INTO `gun` (`id`, `reloadTime`, `rangeFire`, `damage`, `speed`, `price`, `name`, `title`, `image`) VALUES
-(1, 1000, 10, 20, 8, 300, 'GUN_LIGHT', '', 'Tanks/GUN_A_1.png'),
-(2, 1500, 12, 300, 5, 500, 'GUN_HEAVY', '', 'Tanks/GUN_B_1.png');
+(1, 1000, 10, 10, 8, 300, 'GUN_LIGHT', '', 'Tanks/gun1.png'),
+(2, 1500, 12, 20, 5, 500, 'GUN_HEAVY', '', 'Tanks/gun2.png');
 
 -- --------------------------------------------------------
 
@@ -322,8 +309,8 @@ CREATE TABLE `hull` (
 --
 
 INSERT INTO `hull` (`id`, `cargo`, `hp`, `price`, `name`, `title`, `image`) VALUES
-(1, 20, 20, 500, 'HULL_LIGHT', '', 'Tanks/HULL_A_1.png'),
-(2, 30, 30, 750, 'HULL_HEAVY', '', 'Tanks/HULL_B_1.png');
+(1, 20, 20, 500, 'HULL_LIGHT', '', 'Tanks/heavy hull.png'),
+(2, 30, 30, 750, 'HULL_HEAVY', '', 'Tanks/light hull.png');
 
 -- --------------------------------------------------------
 
@@ -338,6 +325,21 @@ CREATE TABLE `objects` (
   `count` int(11) NOT NULL,
   `type` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `objects`
+--
+
+INSERT INTO `objects` (`id`, `x`, `y`, `count`, `type`) VALUES
+(1, 1, 9, 11, 1),
+(2, 2, 10, 4, 1),
+(3, 2, 10, 14, 1),
+(4, 3, 10, 6, 1),
+(5, 17, 9, 7, 1),
+(6, 2, 8, 2, 1),
+(7, 2, 9, 13, 1),
+(8, 6, 6, 18, 1),
+(9, 2, 6, 14, 1);
 
 -- --------------------------------------------------------
 
@@ -359,8 +361,8 @@ CREATE TABLE `shassis` (
 --
 
 INSERT INTO `shassis` (`id`, `speed`, `price`, `name`, `title`, `image`) VALUES
-(1, 250, 100, 'SHASSIS_LIGHT', '', 'Tanks/chassis_A.png'),
-(2, 500, 200, 'SHASSIS_HEAVY', '', 'Tanks/chassis_B.png');
+(1, 250, 100, 'SHASSIS_LIGHT', '', 'Tanks/wheels.png'),
+(2, 500, 200, 'SHASSIS_HEAVY', '', 'Tanks/caterpillar.png');
 
 -- --------------------------------------------------------
 
@@ -408,7 +410,8 @@ INSERT INTO `sprite_map` (`id`, `name`, `x`, `y`, `team`, `width`, `height`) VAL
 (23, 'DIRT', 600, 450, 0, 150, 150),
 (24, 'RESOURCE', 750, 450, 0, 150, 150),
 (25, 'STONE_2', 600, 600, 0, 150, 150),
-(26, 'STONE_3', 750, 600, 0, 150, 150);
+(26, 'STONE_3', 750, 600, 0, 150, 150),
+(27, 'LOOT', 750, 450, 0, 150, 150);
 
 -- --------------------------------------------------------
 
@@ -431,6 +434,14 @@ CREATE TABLE `tanks` (
   `shassisType` int(11) NOT NULL,
   `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `tanks`
+--
+
+INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTimeStamp`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`, `moveTimeStamp`) VALUES
+(504, 1, 1, 13, 8, 'right', 1575300005544, 20, 20, 1, 1, 1, 1575300007655),
+(505, 3, 1, 16, 8, 'left', 1575300066721, 20, 20, 1, 1, 1, 1575300065378);
 
 -- --------------------------------------------------------
 
@@ -472,9 +483,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
-(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '94613963e5b4e8f15d70d704e29b9164', 700),
-(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '94e5f625b8e7d036527930acf90d93b3', 276100),
-(3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', '', 300);
+(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', 'ff0a4bc36c6725bea7ded6e9f8aa166b', 700),
+(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', 'e2e2ab622d990e124b378383fdb2f6d0', 264500),
+(3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', 'b17c91e5540cd95c08d09fa7a190b503', 300);
 
 --
 -- Индексы сохранённых таблиц
@@ -573,7 +584,7 @@ ALTER TABLE `battle`
 -- AUTO_INCREMENT для таблицы `booms`
 --
 ALTER TABLE `booms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=498;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=657;
 
 --
 -- AUTO_INCREMENT для таблицы `building`
@@ -585,7 +596,7 @@ ALTER TABLE `building`
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1157;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1338;
 
 --
 -- AUTO_INCREMENT для таблицы `field`
@@ -609,7 +620,7 @@ ALTER TABLE `hull`
 -- AUTO_INCREMENT для таблицы `objects`
 --
 ALTER TABLE `objects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `shassis`
@@ -621,13 +632,13 @@ ALTER TABLE `shassis`
 -- AUTO_INCREMENT для таблицы `sprite_map`
 --
 ALTER TABLE `sprite_map`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=423;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=506;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

@@ -17,8 +17,9 @@ export default class Canvas {
 
     //Очистить экран
     clear() {
-        this.context.fillStyle = '#eeeeee';
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        //this.context.fillStyle = '#eeeeee';
+        //this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     //нарисовать изображение
@@ -100,9 +101,14 @@ export default class Canvas {
         this.context.drawImage(img, sx, sy, swidth, sheight, x, y, width, height);
     }
 
-    drawRect() {
-        this.context.fillStyle = '#ffffff';
-        this.context.rect(10, 10, 100, 100);
-        this.context.fill();
+    drawText(text, x, y, color) {
+        this.context.fillStyle = color;
+        this.context.font = "15px serif";
+        this.context.fillText(text, x, y, 50);
+    }
+
+    drawRect(x, y, width, height, color) {
+        this.context.fillStyle = color;
+        this.context.fillRect(x, y, width, height);
     }
 }

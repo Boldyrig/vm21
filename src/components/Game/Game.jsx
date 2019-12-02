@@ -60,6 +60,10 @@ export default class Game extends React.Component {
         this.canvas = new Canvas({ id: 'canvas' });
     }
 
+    constructorCB(constructor){
+        this.constructor = constructor;
+    }
+
     renderScene(scene) {
         this.canvas.clear();
         if(scene.userMoney != this.state.money) this.setState({ money:scene.userMoney });
@@ -68,6 +72,9 @@ export default class Game extends React.Component {
         const bullets = scene.bullets;
         const tanks = scene.tanks;
         const booms = scene.booms;
+        const objects = scene.objects;
+        const users = scene.users;
+        const hullTypes = this.constructor.CONSTRUCTOR.HULL_TYPE;
         const spriteMap = scene.spriteMap;
         let sprite_map = {};
         for(let i = 0; i < spriteMap.length; i++){
@@ -90,19 +97,13 @@ export default class Game extends React.Component {
             this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_BLUE');
 
         }
-        for(let i = 0; i < bullets.length; i ++){
-            if(bullets[i].type == 1){
-                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_LIGHT', bullets[i].direction);
-            } else {
-                this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_HEAVY', bullets[i].direction);
-            }
+        for(let i = 0; i < objects.length; i ++) {
+            this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, objects[i].x*50, objects[i].y*50, 50, 50, sprite_map, 'LOOT');
         }
         for (let i = 0; i < tanks.length; i++) {
-            if(tanks[i] !== undefined){
-                console.log(tanks[i]);
+            if(tanks[i]){
                 if (tanks[i].team === '1'){
                     // шасси
-                    console.log(tanks[i].x + ' ' + tanks[i].y);
                     if (tanks[i].shassisType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_LIGHT', tanks[i].direction);
                     if (tanks[i].shassisType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'SHASSIS_HEAVY', tanks[i].direction);
                     //корпус
@@ -123,11 +124,30 @@ export default class Game extends React.Component {
                     if (tanks[i].gunType === '1') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_LIGHT_BLUE', tanks[i].direction);
                     if (tanks[i].gunType === '2') this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, tanks[i].x*50, tanks[i].y*50, 50, 50, sprite_map, 'GUN_HEAVY_BLUE', tanks[i].direction);
                 }
-
-            } else if (tanks[i] === undefined) {
+                for(let j = 0; j < users.length; j++) {
+                    if(tanks[i].user_id == users[j].id) {
+                        this.canvas.drawText(users[j].login, tanks[i].x * 50, tanks[i].y * 50, '#ffffff');//login
+                    }
+                    for(let hull in hullTypes){
+                        if(hullTypes[hull].id == tanks[i].hullType){
+                            let maxValue = hullTypes[hull].hp;
+                            let currentValue = tanks[i].hp;
+                            let value = currentValue / maxValue * 50;
+                            this.canvas.drawRect(tanks[i].x * 50, tanks[i].y * 50, 50, 10, '#ffffff');//maxHealth
+                            this.canvas.drawRect(tanks[i].x * 50, tanks[i].y * 50, value, 10, '#ff0000');//currentHealth
+                        }
+                    }
+                }
+            } else if (!tanks[i]) {
                 continue;   
             }
-
+            for(let i = 0; i < bullets.length; i ++){
+                if(bullets[i].type == 1){
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_LIGHT', bullets[i].direction);
+                } else {
+                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, bullets[i].x*50, bullets[i].y*50, 50, 50, sprite_map, 'BULLET_HEAVY', bullets[i].direction);
+                }
+            }
             for(let i = 0; i < booms.length; i++){
                 if(booms[i].timeLife == 4){
                     this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_4');
@@ -145,9 +165,14 @@ export default class Game extends React.Component {
                     this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
 
                 }
-            } 
+            }
         }
-        
+    }
+
+    updateHealth(curValue, maxValue) {
+        let health = document.getElementById('cur_health');
+        let value = maxValue / 100 * curValue;
+        health.style = `width: ${value}%`;
     }
 
     logout() {
@@ -159,7 +184,7 @@ export default class Game extends React.Component {
             <div className="game">
                 <div id='userInfo'>
                     <span>Money: </span>{this.state.money}<span> rub</span><br/>
-                    <span>Login: </span>{this.appState.login}
+                    <span>Login: </span>{this.appState.login}<br/>
                 </div>
                 {this.state.isConstructed
                  ? <canvas id='canvas'></canvas>
@@ -168,7 +193,8 @@ export default class Game extends React.Component {
                         setConstructed = { (val) => this.setConstructed(val)}
                         getConstructor = {() => this.getConstructor()}
                         money = {this.appState.money}
-                        setErrors = {this.setErrors}/>
+                        setErrors = {this.setErrors}
+                        constructorCB = {constructor => this.constructorCB(constructor)}/>
                 }
                 <div className='menu__btn' onClick={ 
                     () => {
