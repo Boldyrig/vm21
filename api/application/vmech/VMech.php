@@ -54,7 +54,7 @@ class VMech {
             }
         }
 	}
-	
+
 	// проверка, находятся ли (x, y) в здании
 	private function isInnerBuilding($x, $y, $buildings) {
 		for ($i = 0; $i < count($buildings); $i++) {
@@ -108,26 +108,19 @@ class VMech {
 		}
 	}
 
-	private function killBuilding($id){
-		for ($i = 0; $i < count($this->buildings); $i++) {
-			if ($this->buildings[$i]->id == $id) {
-				array_splice($this->buildings, $i, 1);
-				return;
-			}
-		}
-
-	}
 	// подобрать объект в танк
-	private function raiseObject($object, $tank) {
-		if ($tank->cargoType == $object->type || !$tank->cargoType){ 
-			$tank->cargoType = $object->type;
-			$cargoLeft = $this->db->getHull($tank->hullType)->cargo - $tank->cargo;
-			if ($cargoLeft >= $object->count){
-				$tank->cargo += $object->count;
-				$this->killObject($object->id);
-			} else {
-				$tank->cargo += $cargoLeft;
-				$object->count -= $cargoLeft;
+	private function raiseObject($tank, $x, $y) {
+		// узнать, на какой объект наступил танк
+		$objects = $this->db->getObjectsByXY($x, $y);
+		// изменить cargo танка,объекта и если нужно удалить 
+		for($i = 0; $i < count($objects); $i++){
+			if ($tank->cargo - $objects[$i]->count >= 0){
+				$this->db->updateTankCargo($tank->id, $tank->cargo - $objects[$i]->count);
+				$this->db->deleteObject($objects[$i]->id);
+				
+			}else {
+				$this->db->updateTankCargo($tank->id, 0);
+				$this->db->updateObjectCount($objects[$i]->id,$objects[$i]->count - $tank->cargo);
 			}
 		}
 	}
@@ -196,6 +189,10 @@ class VMech {
 					$tank->hp -= $damage;
 					if($tank->hp <= 0){
 						$this->db->deleteTankById($tank->id);
+						$count = rand(0,20);
+						if ($count > 0){
+						 $this->db->addObject($tank->x,$tank->y,$count,1);
+						} 
 					} else {
 						$this->db->updateTankById($tank->id, $tank->hp);
 					}
@@ -242,12 +239,14 @@ class VMech {
 								$battle->fieldY, 
 								$this->db->getField()
 							);
+		$scene->users = $this->db->getUsers();
 		$scene->tanks = $this->db->getTanks();
 		$scene->buildings = $this->db->getBuildings();
 		$scene->bullets = $this->db->getBullets();
 		$scene->spriteMap = $this->db->getSpriteMap();
 		$scene->booms = $this->db->getBooms();
 		$scene->userMoney = $this->db->getUserById($userId)->money;
+		$scene->objects = $this->db->getObjects();
 		return $scene;
 	}
 
@@ -274,6 +273,7 @@ class VMech {
 				);
 				$x = $tank->x;
 				$y = $tank->y;
+				//print_r($x.'!'.$y);
 				switch ($direction) {
 					case 'left': $x--; break;
 					case 'right': $x++; break;
@@ -290,11 +290,26 @@ class VMech {
 				) {
 					return false;
 				}
+				if(intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo) > 0){
+					$building = $this->db->getBuilding($tank->team);
+					$buildingX = $this->db->getBuilding($tank->team)->x;
+					$buildingY = $this->db->getBuilding($tank->team)->y;
+					if((($tank->x == ($buildingX+2)) && ($tank->y == ($buildingY     || ($buildingY+1)))) ||
+					   (($tank->x == ($buildingX+1)) && ($tank->y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($tank->x ==  $buildingX)    && ($tank->y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($tank->x == ($buildingX-1)) && ($tank->y == (($buildingY+1) || $buildingY)))
+					){
+						$hp = intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo);
+						$this->db->updateHpBase($hp,$tank->team);
+						$this->db->updateTankCargo($tank->id,intval($this->db->getHull($tank->hullType)->cargo));
 
+					}
+				}
+				// если на пути объект
+				$this->raiseObject($tank,$x,$y);
 				return $this->db->updateTankXY($tank->id, $x, $y, $direction, $timeStamp);
+
 			}
-			// если на пути объект
-			//..
 		}
 		return false;
 	}

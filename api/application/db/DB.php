@@ -45,6 +45,12 @@ class DB {
         return $this->oneRecord($result);
     }
 
+    private function getDataByTeam($tableName, $team) {
+        $query = 'SELECT * FROM ' . $tableName . ' WHERE team=' . $team;
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
 	private function getDataByUserId($tableName, $userId) {
         $query = 'SELECT * FROM ' . $tableName . ' WHERE user_id=' . $userId;
         $result = $this->conn->query($query);
@@ -99,6 +105,7 @@ class DB {
     public function getGuns() { return $this->getAllData('gun'); }
     public function getShassis() { return $this->getAllData('shassis'); }
     public function getTeams() { return $this->getAllData('team'); }
+    public function getObjects() { return $this->getAllData('objects'); }
 
     public function getHull($id) { return $this->getDataById('hull', $id); }
     public function getGun($id) { return $this->getDataById('gun', $id); }
@@ -116,12 +123,14 @@ class DB {
 	public function getBuildings(){ return $this->getAllData('building'); }
     public function getBullets(){ return $this->getAllData('bullets'); }
     public function getBooms(){ return $this->getAllData('booms'); }
-    
+
     public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
 
     public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
 	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
 	public function getBaseById($id){ return $this->getDataById('building', id); }
+
+    public function getBuilding($team){return $this->getDataByTeam('building',$team);}
 
     public function addTank($userId, $teamId, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
@@ -138,7 +147,11 @@ class DB {
         $this->conn->query($query);
         return true;
     }
-
+    public function addObject($x, $y, $count, $type){
+        $query = 'INSERT INTO objects (x, y, count, type) VALUES ('.$x.','.$y.','.$count.','.$type.')';
+        $this->conn->query($query);
+        return true;
+    }
 	public function addBullet($x, $y, $direction, $type, $rangeBullet){
 		$query = 'INSERT INTO bullets 
                 (x, y, direction, type, rangeBullet)
@@ -231,7 +244,7 @@ class DB {
     public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
     public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
     public function deleteBoomById($boomId){return $this->DeleteById('booms', $boomId); }
-    
+    public function deleteObject($objectId){return $this->deleteAllData('objects',$objectId);}
     public function deleteAllData($tableName){
         $query = 'DELETE FROM '.$tableName;
         $this->conn->query($query);
@@ -260,4 +273,29 @@ class DB {
         $result = $this->conn->query($query);
         return $this->oneRecord($result);
     }
+
+    public function getObjectsByXY($x, $y){
+        $query = 'SELECT * FROM objects WHERE x = ' . $x . ' AND y = ' . $y;
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+    public function updateObjectCount($id,$count){
+        $query = 'UPDATE objects SET count='.$count.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+
+    public function updateTankCargo($id, $cargo){
+        $query = 'UPDATE tanks SET cargo='.$cargo.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
+    }
+    public function updateHpBase($hp,$team){
+        $query = 'UPDATE building SET hp = hp + '.$hp.' WHERE team='.$team;
+        $this->conn->query($query);
+        return true;
+    }
+
+    
 }
