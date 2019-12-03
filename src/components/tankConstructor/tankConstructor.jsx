@@ -38,6 +38,8 @@ class TankConstructor extends React.Component {
                     price += item.price ? item.price - 0 : 0;
                 }
             }
+            if (elem === 'NUKE') 
+                continue;
             if(!params[elem]){
                 this.setErrors({
                     code: 500,
@@ -67,7 +69,6 @@ class TankConstructor extends React.Component {
             arr.push(<div className='name__type'><p key={elem.toString()}>--{elem}--</p></div>);
             for(let i = 0; i < CONSTRUCTOR[elem].length; i++){
                 let item = CONSTRUCTOR[elem][i];
-                console.log();
                 arr.push(<div className='type'><label key={item.name.toString()}>
                             <input key={item.name.toString() + i} type='radio' name={elem} id={item.name}></input>
                             <img key={item.name.toString() + "_img"} className='constructorImages' src={require(`../../assets/img/${item.image}`)} alt='none' />
@@ -83,8 +84,9 @@ class TankConstructor extends React.Component {
         return (<div key='tankConstructor'>
             { this.constructor ? this.printConstructor() : null }
             <div className='menu__btn'><div className='start__btn' onClick={ () => {
-                if(this.buildTank()){
-                    this.addTankRequest(this.buildTank());  // Отправляем запрос на сервер для создания нового танка с параметрами из конструктора
+                const tankParams = this.buildTank();
+                if (tankParams) {
+                    this.addTankRequest(tankParams);  // Отправляем запрос на сервер для создания нового танка с параметрами из конструктора
                     this.setConstructed(true);
                 }
             }}><a>Start</a></div></div>

@@ -105,7 +105,7 @@ export default class Server {
                                                     hull: tankParams['HULL_TYPE'], 
                                                     gun: tankParams['GUN_TYPE'], 
                                                     shassis: tankParams['SHASSIS_TYPE'], 
-                                                    money: tankParams['MONEY']});
+                                                    nuke: tankParams['NUKE']});
         if (result) {
             this.isUpdateScene = true;
             this.startUpdate();
