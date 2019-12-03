@@ -10,7 +10,8 @@ class VMech {
 			'TEAM' => $this->db->getTeams(),
 			'GUN_TYPE' => $this->db->getGuns(),
 			'SHASSIS_TYPE' => $this->db->getShassis(),
-			'HULL_TYPE' => $this->db->getHulls()
+			'HULL_TYPE' => $this->db->getHulls(),
+			'NUKE' => $this->db->getNukes()
 		);
 		$array['DEFAULT_MONEY'] = $this->db->getBattle()->defaultMoney;
 		return $array;
@@ -294,10 +295,10 @@ class VMech {
 					$building = $this->db->getBuilding($tank->team);
 					$buildingX = $this->db->getBuilding($tank->team)->x;
 					$buildingY = $this->db->getBuilding($tank->team)->y;
-					if((($tank->x == ($buildingX+2)) && ($tank->y == ($buildingY     || ($buildingY+1)))) ||
-					   (($tank->x == ($buildingX+1)) && ($tank->y == (($buildingY+2) || ($buildingY-1)))) ||
-					   (($tank->x ==  $buildingX)    && ($tank->y == (($buildingY+2) || ($buildingY-1)))) ||
-					   (($tank->x == ($buildingX-1)) && ($tank->y == (($buildingY+1) || $buildingY)))
+					if((($x == ($buildingX+2)) && ($y == ($buildingY     || ($buildingY+1)))) ||
+					   (($x == ($buildingX+1)) && ($y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($x ==  $buildingX)    && ($y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($x == ($buildingX-1)) && ($y == (($buildingY+1) || $buildingY)))
 					){
 						$hp = intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo);
 						$this->db->updateHpBase($hp,$tank->team);

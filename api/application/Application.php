@@ -44,8 +44,7 @@ class Application {
             $params['team'] && 
             $params['hull'] && 
             $params['gun'] && 
-            $params['shassis'] &&
-            $params['money']
+            $params['shassis']
         ) {
             $user = $this->user->getUserByToken($params['token']);
             if ($user) {

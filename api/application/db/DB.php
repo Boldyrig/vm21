@@ -66,7 +66,7 @@ class DB {
 	public function getUsers(){
 		$query = 'SELECT * FROM users';
         $result = $this->conn->query($query);
-        return $this->oneRecord($result);
+        return $this->allRecords($result);
 	}
 
     public function getUserByToken($token) {
@@ -296,6 +296,7 @@ class DB {
         $this->conn->query($query);
         return true;
     }
+    public function getNukes(){ return $this->getAllData('nuke'); }
+    public function getNuke($id){ return $this->getDataById('nuke',$id); }
 
-    
 }
