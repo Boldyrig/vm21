@@ -55,6 +55,7 @@ class Container extends React.Component {
               setErrors = {err => this.setErrors(err)}
               move={(direction) => this.server.move(direction)}
               shoot={() => this.server.shoot()}
+              boomNuke = {() => this.server.boomNuke()}
               />
           : this.state.isRegistr
           ?

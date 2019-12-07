@@ -16,6 +16,7 @@ export default class Game extends React.Component {
         this.setErrors = props.setErrors;
         this.move = props.move;
         this.shoot = props.shoot;
+        this.boomNuke = props.boomNuke;
         this.state = {
             isConstructed: false,
             money: this.appState.money
@@ -48,6 +49,7 @@ export default class Game extends React.Component {
                 case 83: this.move('down'); break;//s
                 case 40: this.move('down'); break;//стрелка вниз
                 case 32: this.shoot(); break;
+                case 78: this.boomNuke(); break; //бомбануть
             }
         }
     }

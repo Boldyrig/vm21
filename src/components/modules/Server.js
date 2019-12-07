@@ -20,7 +20,10 @@ export default class Server {
         const answer = await response.json();
         return (answer && answer.result === 'ok') ? 
                 answer.data : 
-                (method !== 'update' && method !== 'move' && method !== 'shoot') ? 
+                (method !== 'update' && 
+                 method !== 'move' && 
+                 method !== 'shoot' && 
+                 method !== 'boom') ? 
                     this.error(answer.error) :
                     false;
     }
@@ -79,7 +82,7 @@ export default class Server {
         return this.send('checkEndGame');
     }
 
-    shoot(id) {
+    shoot() {
         return this.send('shoot');
     }
 
@@ -105,11 +108,15 @@ export default class Server {
                                                     hull: tankParams['HULL_TYPE'], 
                                                     gun: tankParams['GUN_TYPE'], 
                                                     shassis: tankParams['SHASSIS_TYPE'], 
-                                                    money: tankParams['MONEY']});
+                                                    nuke: tankParams['NUKE']});
         if (result) {
             this.isUpdateScene = true;
             this.startUpdate();
         }
         return result;
+    }
+
+    boomNuke() {
+        return this.send('boom');
     }
 }
