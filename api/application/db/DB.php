@@ -45,6 +45,12 @@ class DB {
         return $this->oneRecord($result);
     }
 
+    private function getDataByTeam($tableName, $team) {
+        $query = 'SELECT * FROM ' . $tableName . ' WHERE team=' . $team;
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
 	private function getDataByUserId($tableName, $userId) {
         $query = 'SELECT * FROM ' . $tableName . ' WHERE user_id=' . $userId;
         $result = $this->conn->query($query);
@@ -60,7 +66,7 @@ class DB {
 	public function getUsers(){
 		$query = 'SELECT * FROM users';
         $result = $this->conn->query($query);
-        return $this->oneRecord($result);
+        return $this->allRecords($result);
 	}
 
     public function getUserByToken($token) {
@@ -117,25 +123,33 @@ class DB {
 	public function getBuildings(){ return $this->getAllData('building'); }
     public function getBullets(){ return $this->getAllData('bullets'); }
     public function getBooms(){ return $this->getAllData('booms'); }
-    
+
     public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
 
     public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
 	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
 	public function getBaseById($id){ return $this->getDataById('building', id); }
 
-    public function addTank($userId, $teamId, $hp, $cargo, $hullId, $gunId, $shassiId, $x, $y) {
+    public function getBuilding($team){return $this->getDataByTeam('building',$team);}
+
+    public function addTank(
+        $userId, 
+        $teamId, 
+        $hp, 
+        $cargo, 
+        $hullId, $gunId, $shassiId, $x, $y, $nuke
+    ) {
         $query = 'DELETE FROM tanks WHERE user_id=' . $userId;
         $this->conn->query($query);
         $query = 'INSERT INTO tanks 
-                (user_id, team, x, y, hp, cargo, hullType, gunType, shassisType ) 
+                (user_id, team, x, y, hp, cargo, hullType, gunType, shassisType, nuke ) 
                 VALUES 
                 ('.$userId.', 
                  '.$teamId.',
 				 '.$x.',
 				 '.$y.',
                  '.$hp.', 
-                 '.$cargo.', '.$hullId.', '.$gunId.', '.$shassiId.')';
+                 '.$cargo.', '.$hullId.', '.$gunId.', '.$shassiId.', '.$nuke.')';
         $this->conn->query($query);
         return true;
     }
@@ -236,7 +250,7 @@ class DB {
     public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
     public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
     public function deleteBoomById($boomId){return $this->DeleteById('booms', $boomId); }
-    
+    public function deleteObject($objectId){return $this->deleteAllData('objects',$objectId);}
     public function deleteAllData($tableName){
         $query = 'DELETE FROM '.$tableName;
         $this->conn->query($query);
@@ -266,10 +280,16 @@ class DB {
         return $this->oneRecord($result);
     }
 
-    public function getObjectByXY($x, $y){
+    public function getObjectsByXY($x, $y){
         $query = 'SELECT * FROM objects WHERE x = ' . $x . ' AND y = ' . $y;
         $result = $this->conn->query($query);
         return $this->allRecords($result);
+    }
+
+    public function updateObjectCount($id,$count){
+        $query = 'UPDATE objects SET count='.$count.' WHERE id='.$id;
+        $this->conn->query($query);
+        return true;
     }
 
     public function updateTankCargo($id, $cargo){
@@ -277,4 +297,18 @@ class DB {
         $this->conn->query($query);
         return true;
     }
+    public function updateHpBase($hp,$team){
+        $query = 'UPDATE building SET hp = hp + '.$hp.' WHERE team='.$team;
+        $this->conn->query($query);
+        return true;
+    }
+    public function getNukes(){ return $this->getAllData('nuke'); }
+    //public function getNuke($id){ return $this->getDataById('nuke',$id); }
+
+    public function getNuke(){
+        $query = 'SELECT * FROM nuke';
+        $result = $this->conn->query($query);
+        return $this->oneRecord($result);
+    }
+
 }

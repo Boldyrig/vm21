@@ -44,8 +44,7 @@ class Application {
             $params['team'] && 
             $params['hull'] && 
             $params['gun'] && 
-            $params['shassis'] &&
-            $params['money']
+            $params['shassis']
         ) {
             $user = $this->user->getUserByToken($params['token']);
             if ($user) {
@@ -55,6 +54,7 @@ class Application {
                     $params['hull'],
                     $params['gun'],
                     $params['shassis'],
+                    (intval($params['nuke'])) ? $params['nuke'] : 0,
                     $user->money);
             }
         }
@@ -81,6 +81,15 @@ class Application {
         return false;
     }
 
+    public function boom($params) {
+        if ($params['token']) {
+            $user = $this->user->getUserByToken($params['token']);
+            if ($user) {
+                return $this->vMech->boom($user->id);
+            }
+        }
+        return false;
+    }
 
     public function updateScene($params) {
         if ($params['token']) { 

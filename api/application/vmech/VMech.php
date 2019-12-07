@@ -10,7 +10,8 @@ class VMech {
 			'TEAM' => $this->db->getTeams(),
 			'GUN_TYPE' => $this->db->getGuns(),
 			'SHASSIS_TYPE' => $this->db->getShassis(),
-			'HULL_TYPE' => $this->db->getHulls()
+			'HULL_TYPE' => $this->db->getHulls(),
+			'NUKE' => $this->db->getNukes()
 		);
 		$array['DEFAULT_MONEY'] = $this->db->getBattle()->defaultMoney;
 		return $array;
@@ -54,7 +55,7 @@ class VMech {
             }
         }
 	}
-	
+
 	// проверка, находятся ли (x, y) в здании
 	private function isInnerBuilding($x, $y, $buildings) {
 		for ($i = 0; $i < count($buildings); $i++) {
@@ -109,31 +110,20 @@ class VMech {
 	}
 
 	// подобрать объект в танк
-	private function raiseObject($tank) {
-
-		// взять все объекты
+	private function raiseObject($tank, $x, $y) {
 		// узнать, на какой объект наступил танк
-		$objects = $this->db->getObjectByXY($tank->x, $tank->y);
-		// изменить cargo танка
-		foreach ($objects as $object){
-			$this->db->updateTankCargo($tank->id, $tank->cargo - $object->cargo);
-		}
-		// изменить cargo объекта
-
-		// при случае грохнуть объект
-		// все записать в базоньку
-
-		/*if ($tank->cargoType == $object->type || !$tank->cargoType){ 
-			$tank->cargoType = $object->type;
-			$cargoLeft = $this->db->getHull($tank->hullType)->cargo - $tank->cargo;
-			if ($cargoLeft >= $object->count){
-				$tank->cargo += $object->count;
-				$this->killObject($object->id);
-			} else {
-				$tank->cargo += $cargoLeft;
-				$object->count -= $cargoLeft;
+		$objects = $this->db->getObjectsByXY($x, $y);
+		// изменить cargo танка,объекта и если нужно удалить 
+		for($i = 0; $i < count($objects); $i++){
+			if ($tank->cargo - $objects[$i]->count >= 0){
+				$this->db->updateTankCargo($tank->id, $tank->cargo - $objects[$i]->count);
+				$this->db->deleteObject($objects[$i]->id);
+				
+			}else {
+				$this->db->updateTankCargo($tank->id, 0);
+				$this->db->updateObjectCount($objects[$i]->id,$objects[$i]->count - $tank->cargo);
 			}
-		}*/
+		}
 	}
 
 	//перемещение пуль
@@ -250,6 +240,7 @@ class VMech {
 								$battle->fieldY, 
 								$this->db->getField()
 							);
+		$scene->users = $this->db->getUsers();
 		$scene->tanks = $this->db->getTanks();
 		$scene->buildings = $this->db->getBuildings();
 		$scene->bullets = $this->db->getBullets();
@@ -283,6 +274,7 @@ class VMech {
 				);
 				$x = $tank->x;
 				$y = $tank->y;
+				//print_r($x.'!'.$y);
 				switch ($direction) {
 					case 'left': $x--; break;
 					case 'right': $x++; break;
@@ -299,9 +291,25 @@ class VMech {
 				) {
 					return false;
 				}
+				if(intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo) > 0){
+					$building = $this->db->getBuilding($tank->team);
+					$buildingX = $this->db->getBuilding($tank->team)->x;
+					$buildingY = $this->db->getBuilding($tank->team)->y;
+					if((($x == ($buildingX+2)) && ($y == ($buildingY     || ($buildingY+1)))) ||
+					   (($x == ($buildingX+1)) && ($y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($x ==  $buildingX)    && ($y == (($buildingY+2) || ($buildingY-1)))) ||
+					   (($x == ($buildingX-1)) && ($y == (($buildingY+1) || $buildingY)))
+					){
+						$hp = intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo);
+						$this->db->updateHpBase($hp,$tank->team);
+						$this->db->updateTankCargo($tank->id,intval($this->db->getHull($tank->hullType)->cargo));
+
+					}
+				}
 				// если на пути объект
-				$this->raiseObject($tank);
+				$this->raiseObject($tank,$x,$y);
 				return $this->db->updateTankXY($tank->id, $x, $y, $direction, $timeStamp);
+
 			}
 		}
 		return false;
@@ -327,6 +335,69 @@ class VMech {
 			}
 		}
 		return false;
+	}
+
+	public function boom($userId){
+		$tank = $this->db->getTankByUserId($userId);
+		if ($tank){
+			if (intval($tank->nuke) > 0){
+				$nukeDamage = $this->db->getNuke()->damage;
+				$field = $this->db->getField();
+
+				$tanks = $this->db->getTanks();
+				$buildings = $this->db->getBuildings();
+				
+				$this->db->deleteTankById($tank->id);
+
+				foreach ($field as $wall){
+					$distance = $this->calcDistance($wall->x, $wall->y,
+													$tank->x, $tank->y);
+					$damage = $nukeDamage / pow($distance, 2);
+					if ($damage > $nukeDamage / 10){
+						$hp = $wall->hp - $damage;
+						if ($hp > 0) {
+							$this->db->updateBlockById($wall->id, $hp);
+						} else {
+							$this->db->deleteBlockById($wall->id);
+						}
+					}
+				}
+
+				foreach ($tanks as $t){
+					$distance = $this->calcDistance($t->x, $t->y,
+													$tank->x, $tank->y);
+					$damage = $nukeDamage / pow($distance, 2);
+					if ($damage > $nukeDamage / 10){
+						$hp = $t->hp - $damage;
+						if ($hp > 0) {
+							$this->db->updateTankById($t->id, $hp);
+						} else {
+							$this->db->deleteTankById($t->id);
+						}
+					}
+				}
+
+				foreach ($buildings as $b){
+					$distance = $this->calcDistance($b->x, $b->y,
+													$tank->x, $tank->y);
+					$damage = $nukeDamage / pow($distance, 2);
+					if ($damage > $nukeDamage / 10){
+						$hp = $b->hp - $damage;
+						if ($hp > 0) {
+							$this->db->updateBuildingById($b->id, $hp);
+						} else {
+							$this->db->deleteBuildingById($b->id);
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function calcDistance($x1, $y1, $x2, $y2){
+		return $distance = sqrt(pow($x1-$x2, 2) + pow($y1-$y2, 2));
 	}
 
 	private function createScene($battle) {
@@ -453,7 +524,15 @@ class VMech {
 	}
 
 	// добавить танк (вычесть баблишко у пользователя)
-	public function addTank($userId, $teamId, $hullId, $gunId, $shassisId, $money) {
+	public function addTank(
+		$userId, 
+		$teamId, 
+		$hullId, 
+		$gunId, 
+		$shassisId, 
+		$nuke, 
+		$money
+	) {
 		$team = null;
 		$gun = null;
 		$hull = null;
@@ -526,7 +605,8 @@ class VMech {
 					$gun->id,
 					$shassi->id,
 					$x,
-					$y
+					$y,
+					$nuke
 				);
 			}
 		}

@@ -20,6 +20,7 @@ function router($params) {
             case 'checkEndGame': return $app->checkEndGame();
             case 'getConstructor': return $app->getConstructor();
             case 'joinGame': return $app->joinGame($params);
+            case 'boom': return $app->boom($params);
             default: return false;
         }
     }
