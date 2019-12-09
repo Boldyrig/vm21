@@ -127,7 +127,7 @@ class VMech {
 	}
 
 	//перемещение пуль
-	private function updateBullets() {
+	private function updateBullets($userId) {
 		$bullets = $this->db->getBullets();
 		$tanks = $this->db->getTanks(); 
 		$buildings = $this->db->getBuildings();
@@ -190,6 +190,12 @@ class VMech {
 					$tank->hp -= $damage;
 					if($tank->hp <= 0){
 						$this->db->deleteTankById($tank->id);
+						$killerTank = $this->db->getTankByUserId($userId);
+						if ($tank->team == $killerTank->team) {
+							$this->db->updateUserMoneyById($userId, -intval($battle->moneyTank));
+						} else {
+							$this->db->updateUserMoneyById($userId, intval($battle->moneyTank));
+						}
 						$count = rand(0,20);
 						if ($count > 0){
 						 $this->db->addObject($tank->x,$tank->y,$count,1);
@@ -209,6 +215,12 @@ class VMech {
 					$this->db->deleteBulletById($bullet->id);
 					if($building->hp <= 0){
 						$this->db->deleteBuildingById($building->id);
+						$killerTank = $this->db->getTankByUserId($userId);
+						if ($building->team == $killerTank->team) {
+							$this->db->updateUserMoneyById($userId, -intval($battle->moneyBase));
+						}else {
+							$this->db->updateUserMoneyById($userId, intval($battle->moneyBase));
+						}
 					} else {
 						$this->db->updateBuildingById($building->id, $building->hp);
 					}
@@ -300,7 +312,9 @@ class VMech {
 					   (($x ==  $buildingX)    && ($y == (($buildingY+2) || ($buildingY-1)))) ||
 					   (($x == ($buildingX-1)) && ($y == (($buildingY+1) || $buildingY)))
 					){
+						
 						$hp = intval($this->db->getHull($tank->hullType)->cargo) - intval($tank->cargo);
+						$this->db->updateUserMoneyById($userId, $hp*2);
 						$this->db->updateHpBase($hp,$tank->team);
 						$this->db->updateTankCargo($tank->id,intval($this->db->getHull($tank->hullType)->cargo));
 
@@ -343,12 +357,10 @@ class VMech {
 			if (intval($tank->nuke) > 0){
 				$nukeDamage = $this->db->getNuke()->damage;
 				$field = $this->db->getField();
-
 				$tanks = $this->db->getTanks();
 				$buildings = $this->db->getBuildings();
-				
+				$objects = $this->db->getObjects();
 				$this->db->deleteTankById($tank->id);
-
 				foreach ($field as $wall){
 					$distance = $this->calcDistance($wall->x, $wall->y,
 													$tank->x, $tank->y);
@@ -362,7 +374,6 @@ class VMech {
 						}
 					}
 				}
-
 				foreach ($tanks as $t){
 					$distance = $this->calcDistance($t->x, $t->y,
 													$tank->x, $tank->y);
@@ -376,7 +387,6 @@ class VMech {
 						}
 					}
 				}
-
 				foreach ($buildings as $b){
 					$distance = $this->calcDistance($b->x, $b->y,
 													$tank->x, $tank->y);
@@ -388,6 +398,14 @@ class VMech {
 						} else {
 							$this->db->deleteBuildingById($b->id);
 						}
+					}
+				}
+				foreach ($objects as $o) {
+					$distance = $this->calcDistance($o->x, $o->y,
+													$tank->x, $tank->y);
+					$damage = $nukeDamage / pow($distance, 2);
+					if ($damage > $nukeDamage / 10){
+						$this->db->deleteObject($o->id);
 					}
 				}
 				return true;
@@ -481,8 +499,8 @@ class VMech {
 		$battle = $this->db->getBattle();
 		$points = array();//массив точек вокруг базы
 		if($radius > 0){
-			for($i = $base->x - $radius; $i < $base->x + $base->width + $radius; $i ++){
-				for($j = $base->y - $radius; $j < $base->y + $base->height + $radius; $j ++){
+			for($i = $base->x - $radius; $i < ($base->x + $base->width + $radius); $i ++){
+				for($j = $base->y - $radius; $j < ($base->y + $base->height + $radius); $j ++){
 					if( $i >= 0 && $i < $battle->fieldX &&
 						$j >= 0 && $j < $battle->fieldY && 
 						!$this->isInnerBuilding($i, $j, $buildings) && 
@@ -496,7 +514,7 @@ class VMech {
 				}
 			}
 		}
-		$rnd = random_int(0, count($points) - 1);//рандомим номер точки
+		$rnd = rand(0, count($points) - 1);//рандомим номер точки
 		return $points[$rnd];
 	}
 
@@ -512,7 +530,7 @@ class VMech {
 					// обновить сцену и вернуть её на клиент
 					$this->db->updateBattleTimeStamp($battle->id, $currentTime);
 					$this->updateBooms();
-					$this->updateBullets();// сдвигаем пули
+					$this->updateBullets($userId);// сдвигаем пули
 					return $this->getScene($battle, $userId);
 				}
 				return false;

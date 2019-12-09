@@ -302,13 +302,19 @@ class DB {
         $this->conn->query($query);
         return true;
     }
+
     public function getNukes(){ return $this->getAllData('nuke'); }
-    //public function getNuke($id){ return $this->getDataById('nuke',$id); }
 
     public function getNuke(){
         $query = 'SELECT * FROM nuke';
         $result = $this->conn->query($query);
         return $this->oneRecord($result);
+    }
+
+    public function updateUserMoneyById($id, $money) {
+        $query = 'UPDATE users SET money = money + '.$money.' WHERE id=' . $id;
+        $this->conn->query($query);
+        return true;
     }
 
 }
