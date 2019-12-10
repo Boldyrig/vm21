@@ -76,11 +76,20 @@ export default class Game extends React.Component {
         const booms = scene.booms;
         const objects = scene.objects;
         const users = scene.users;
+        const battle = scene.battle;
+        let user = null;
+        let tank = null;
         const hullTypes = this.constructor.CONSTRUCTOR.HULL_TYPE;
         const spriteMap = scene.spriteMap;
         let sprite_map = {};
         for(let i = 0; i < spriteMap.length; i++){
             sprite_map[spriteMap[i].name] = spriteMap[i];
+        }
+        for(let i = 0; i < users.length; i ++) {//взять текущего юзера
+            if(users[i].token == this.appState.token) user = users[i];
+        }
+        for(let i = 0; i < tanks.length; i ++) {//взять танк текущего юзера
+            if(tanks[i].user_id == user.id) tank = tanks[i];
         }
         for (let i = 0; i < field.length; i++){
             for (let j = 0; j < field[i].length; j++){
@@ -97,7 +106,14 @@ export default class Game extends React.Component {
 
             if (buildings[i].team === '2')
             this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_BLUE');
-
+            
+            if(buildings[i].team == tank.team){//отобразить здоровье своей базы
+                let maxValue = battle.healthBase;
+                let currentValue = buildings[i].hp;
+                let value = currentValue / maxValue * 100;
+                this.canvas.drawRect(buildings[i].x * 50, buildings[i].y * 50, 100, 10, '#ffffff');//maxHealth
+                this.canvas.drawRect(buildings[i].x * 50, buildings[i].y * 50, value, 10, '#ff0000');//currentHealth
+            }
         }
         for(let i = 0; i < objects.length; i ++) {
             this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, objects[i].x*50, objects[i].y*50, 50, 50, sprite_map, 'LOOT');

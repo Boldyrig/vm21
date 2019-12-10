@@ -23,6 +23,7 @@ class Auth extends React.Component {
             if(result){
                 this.appState.login = result.login;
                 this.appState.money = result.money;
+                this.appState.token = result.token;
                 this.setAuth(true);
             }
         } else {
