@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.3
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Дек 09 2019 г., 17:20
--- Версия сервера: 5.6.41
--- Версия PHP: 5.5.38
+-- Время создания: Дек 10 2019 г., 08:47
+-- Версия сервера: 10.3.13-MariaDB
+-- Версия PHP: 7.1.22
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -36,6 +36,7 @@ CREATE TABLE `battle` (
   `fieldY` int(11) NOT NULL,
   `moneyTank` int(11) NOT NULL,
   `moneyBase` int(11) NOT NULL,
+  `healthBase` int(11) NOT NULL,
   `updateTime` int(11) NOT NULL COMMENT 'сколько должно пройти времени до обновления сцены'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -43,8 +44,8 @@ CREATE TABLE `battle` (
 -- Дамп данных таблицы `battle`
 --
 
-INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `moneyTank`, `moneyBase`, `updateTime`) VALUES
-(1, 1575901181174, 1200, 20, 20, 150, 10000, 10);
+INSERT INTO `battle` (`id`, `timeStamp`, `defaultMoney`, `fieldX`, `fieldY`, `moneyTank`, `moneyBase`, `healthBase`, `updateTime`) VALUES
+(1, 1575956827895, 1200, 20, 20, 150, 10000, 100, 10);
 
 -- --------------------------------------------------------
 
@@ -56,7 +57,7 @@ CREATE TABLE `booms` (
   `id` int(11) NOT NULL,
   `x` int(11) NOT NULL,
   `y` int(11) NOT NULL,
-  `timeLife` int(11) NOT NULL DEFAULT '5'
+  `timeLife` int(11) NOT NULL DEFAULT 5
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -68,8 +69,8 @@ CREATE TABLE `booms` (
 CREATE TABLE `building` (
   `id` int(11) NOT NULL,
   `team` int(11) NOT NULL,
-  `x` int(11) NOT NULL DEFAULT '0',
-  `y` int(11) NOT NULL DEFAULT '0',
+  `x` int(11) NOT NULL DEFAULT 0,
+  `y` int(11) NOT NULL DEFAULT 0,
   `hp` int(11) NOT NULL,
   `width` int(11) NOT NULL,
   `height` int(11) NOT NULL,
@@ -81,8 +82,8 @@ CREATE TABLE `building` (
 --
 
 INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`, `type`) VALUES
-(60, 1, 0, 0, 50, 2, 2, 'base'),
-(61, 2, 14, 14, 50, 2, 2, 'base');
+(64, 1, 0, 11, 100, 2, 2, 'base'),
+(65, 2, 18, 7, 100, 2, 2, 'base');
 
 -- --------------------------------------------------------
 
@@ -92,12 +93,13 @@ INSERT INTO `building` (`id`, `team`, `x`, `y`, `hp`, `width`, `height`, `type`)
 
 CREATE TABLE `bullets` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `x` int(11) NOT NULL,
   `y` int(11) NOT NULL,
   `direction` varchar(11) NOT NULL,
   `type` int(11) NOT NULL,
   `rangeBullet` int(11) NOT NULL,
-  `moveTimeStamp` bigint(20) NOT NULL DEFAULT '0'
+  `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -118,164 +120,132 @@ CREATE TABLE `field` (
 --
 
 INSERT INTO `field` (`id`, `x`, `y`, `hp`) VALUES
-(1854, 0, 0, 100),
-(1855, 0, 2, 100),
-(1856, 0, 6, 100),
-(1857, 0, 9, 100),
-(1858, 0, 11, 100),
-(1859, 0, 15, 100),
-(1860, 0, 18, 100),
-(1861, 0, 19, 100),
-(1862, 1, 0, 100),
-(1863, 1, 1, 100),
-(1864, 1, 3, 100),
-(1865, 1, 4, 100),
-(1866, 1, 6, 100),
-(1867, 1, 7, 100),
-(1868, 1, 8, 100),
-(1869, 1, 10, 100),
-(1870, 1, 11, 100),
-(1871, 1, 16, 100),
-(1872, 1, 18, 100),
-(1873, 1, 19, 100),
-(1874, 2, 1, 100),
-(1875, 2, 2, 100),
-(1877, 2, 7, 80),
-(1878, 2, 9, 100),
-(1879, 2, 13, 100),
-(1880, 2, 16, 100),
-(1881, 2, 18, 100),
-(1882, 2, 19, 100),
-(1883, 3, 1, 100),
-(1884, 3, 3, 100),
-(1885, 3, 4, 100),
-(1886, 3, 5, 100),
-(1887, 3, 7, 100),
-(1888, 3, 8, 100),
-(1889, 3, 12, 100),
-(1890, 3, 13, 100),
-(1891, 3, 16, 100),
-(1892, 3, 17, 100),
-(1893, 4, 0, 100),
-(1894, 4, 1, 100),
-(1895, 4, 2, 90),
-(1896, 4, 12, 100),
-(1897, 4, 13, 100),
-(1898, 4, 14, 100),
-(1899, 4, 17, 100),
-(1900, 4, 18, 100),
-(1901, 5, 5, 100),
-(1902, 5, 6, 100),
-(1903, 5, 7, 100),
-(1904, 5, 8, 100),
-(1905, 5, 10, 100),
-(1906, 5, 14, 100),
-(1907, 5, 16, 100),
-(1908, 5, 18, 100),
-(1909, 6, 1, 100),
-(1910, 6, 3, 100),
-(1911, 6, 4, 100),
-(1912, 6, 7, 100),
-(1913, 6, 12, 100),
-(1914, 6, 13, 100),
-(1915, 6, 17, 100),
-(1916, 7, 1, 100),
-(1917, 7, 3, 100),
-(1918, 7, 7, 100),
-(1919, 7, 8, 100),
-(1920, 7, 9, 100),
-(1921, 7, 10, 100),
-(1922, 7, 18, 100),
-(1923, 8, 1, 100),
-(1924, 8, 4, 100),
-(1925, 8, 5, 100),
-(1926, 8, 8, 100),
-(1927, 8, 12, 100),
-(1928, 8, 17, 100),
-(1929, 9, 0, 100),
-(1930, 9, 1, 100),
-(1931, 9, 4, 100),
-(1932, 9, 9, 100),
-(1933, 9, 11, 100),
-(1934, 9, 13, 100),
-(1935, 9, 14, 100),
-(1936, 10, 0, 100),
-(1937, 10, 1, 100),
-(1938, 10, 3, 100),
-(1939, 10, 4, 100),
-(1940, 10, 9, 100),
-(1941, 10, 13, 100),
-(1942, 10, 14, 100),
-(1943, 10, 16, 100),
-(1944, 11, 3, 100),
-(1945, 11, 6, 100),
-(1946, 11, 7, 100),
-(1947, 11, 8, 100),
-(1948, 11, 11, 100),
-(1949, 11, 12, 100),
-(1950, 11, 15, 100),
-(1951, 11, 16, 100),
-(1952, 11, 17, 100),
-(1953, 12, 2, 100),
-(1954, 12, 5, 100),
-(1955, 12, 6, 100),
-(1956, 12, 7, 100),
-(1957, 12, 12, 100),
-(1958, 12, 14, 100),
-(1959, 12, 16, 100),
-(1960, 12, 19, 100),
-(1961, 13, 1, 100),
-(1962, 13, 7, 100),
-(1963, 13, 8, 100),
-(1964, 13, 9, 100),
-(1965, 13, 12, 100),
-(1966, 13, 13, 100),
-(1967, 13, 14, 100),
-(1968, 13, 16, 100),
-(1969, 14, 1, 100),
-(1970, 14, 4, 100),
-(1971, 14, 6, 100),
-(1972, 14, 8, 100),
-(1973, 14, 15, 100),
-(1974, 14, 17, 100),
-(1975, 15, 0, 100),
-(1976, 15, 1, 100),
-(1977, 15, 2, 100),
-(1978, 15, 4, 100),
-(1979, 15, 6, 100),
-(1980, 15, 9, 100),
-(1981, 15, 17, 100),
-(1982, 15, 18, 100),
-(1983, 15, 19, 100),
-(1984, 16, 0, 100),
-(1985, 16, 1, 100),
-(1986, 16, 6, 100),
-(1987, 16, 8, 100),
-(1988, 16, 9, 100),
-(1989, 16, 14, 100),
-(1990, 16, 19, 100),
-(1991, 17, 3, 100),
-(1992, 17, 4, 100),
-(1993, 17, 5, 100),
-(1994, 17, 6, 100),
-(1995, 17, 7, 100),
-(1996, 17, 8, 100),
-(1997, 17, 11, 100),
-(1998, 17, 14, 100),
-(1999, 17, 15, 100),
-(2000, 17, 16, 100),
-(2001, 17, 18, 100),
-(2002, 18, 3, 100),
-(2003, 18, 6, 100),
-(2004, 18, 7, 100),
-(2005, 18, 12, 100),
-(2006, 18, 13, 100),
-(2007, 18, 14, 100),
-(2008, 18, 15, 100),
-(2009, 18, 18, 100),
-(2010, 19, 0, 100),
-(2011, 19, 9, 100),
-(2012, 19, 10, 100);
+(2188, 0, 1, 100),
+(2189, 0, 3, 100),
+(2190, 0, 5, 100),
+(2191, 0, 8, 100),
+(2192, 0, 12, 100),
+(2193, 0, 16, 100),
+(2194, 0, 18, 100),
+(2195, 1, 0, 100),
+(2196, 1, 4, 100),
+(2197, 1, 5, 100),
+(2198, 1, 7, 100),
+(2200, 1, 10, 100),
+(2201, 1, 14, 100),
+(2203, 1, 17, 100),
+(2204, 1, 18, 100),
+(2205, 2, 1, 100),
+(2206, 2, 3, 100),
+(2207, 2, 5, 100),
+(2208, 2, 7, 100),
+(2209, 2, 8, 100),
+(2210, 2, 11, 100),
+(2211, 2, 12, 100),
+(2212, 2, 13, 100),
+(2213, 3, 1, 100),
+(2214, 3, 3, 100),
+(2215, 3, 4, 100),
+(2216, 3, 5, 100),
+(2217, 3, 15, 100),
+(2218, 4, 0, 100),
+(2219, 4, 3, 100),
+(2220, 4, 7, 100),
+(2221, 4, 8, 100),
+(2222, 4, 10, 100),
+(2223, 4, 15, 100),
+(2224, 4, 16, 100),
+(2225, 4, 17, 100),
+(2226, 4, 18, 100),
+(2227, 4, 19, 100),
+(2228, 5, 5, 100),
+(2229, 5, 6, 100),
+(2230, 5, 7, 100),
+(2232, 5, 10, 100),
+(2233, 5, 11, 100),
+(2234, 5, 19, 100),
+(2235, 6, 0, 100),
+(2236, 6, 6, 100),
+(2237, 6, 8, 100),
+(2239, 6, 11, 100),
+(2240, 6, 12, 100),
+(2241, 6, 19, 100),
+(2242, 7, 0, 100),
+(2243, 7, 1, 100),
+(2248, 7, 17, 100),
+(2249, 7, 18, 100),
+(2250, 7, 19, 100),
+(2251, 8, 1, 100),
+(2252, 8, 2, 100),
+(2253, 8, 5, 100),
+(2258, 8, 16, 100),
+(2259, 8, 19, 100),
+(2260, 9, 0, 100),
+(2263, 9, 13, 100),
+(2264, 10, 4, 100),
+(2267, 10, 13, 100),
+(2268, 11, 1, 100),
+(2269, 11, 4, 100),
+(2271, 11, 17, 100),
+(2272, 11, 18, 100),
+(2273, 12, 6, 100),
+(2274, 12, 7, 100),
+(2277, 12, 12, 100),
+(2278, 12, 13, 100),
+(2279, 12, 14, 100),
+(2280, 12, 17, 100),
+(2281, 12, 18, 100),
+(2282, 13, 2, 100),
+(2283, 13, 4, 100),
+(2285, 13, 14, 100),
+(2286, 13, 15, 100),
+(2287, 13, 19, 100),
+(2288, 14, 0, 100),
+(2289, 14, 1, 100),
+(2290, 14, 4, 100),
+(2291, 14, 7, 100),
+(2292, 14, 16, 100),
+(2293, 14, 17, 100),
+(2294, 15, 0, 100),
+(2295, 15, 2, 100),
+(2296, 15, 8, 100),
+(2297, 15, 9, 100),
+(2298, 15, 13, 100),
+(2299, 15, 16, 100),
+(2300, 16, 1, 100),
+(2301, 16, 4, 100),
+(2302, 16, 5, 100),
+(2303, 16, 6, 100),
+(2304, 16, 9, 100),
+(2306, 16, 15, 100),
+(2307, 16, 16, 100),
+(2308, 16, 19, 100),
+(2309, 17, 2, 100),
+(2310, 17, 3, 100),
+(2311, 17, 4, 100),
+(2312, 17, 5, 100),
+(2314, 17, 12, 100),
+(2315, 17, 14, 100),
+(2316, 17, 15, 100),
+(2317, 17, 16, 100),
+(2318, 17, 18, 100),
+(2319, 18, 0, 100),
+(2320, 18, 1, 100),
+(2321, 18, 2, 100),
+(2322, 18, 4, 100),
+(2323, 18, 6, 100),
+(2324, 18, 7, 100),
+(2325, 18, 14, 100),
+(2326, 18, 15, 100),
+(2327, 18, 17, 100),
+(2328, 19, 1, 100),
+(2329, 19, 2, 100),
+(2330, 19, 3, 100),
+(2331, 19, 4, 100),
+(2332, 19, 5, 100),
+(2333, 19, 13, 80),
+(2334, 19, 17, 100),
+(2335, 19, 18, 100);
 
 -- --------------------------------------------------------
 
@@ -300,7 +270,7 @@ CREATE TABLE `gun` (
 --
 
 INSERT INTO `gun` (`id`, `reloadTime`, `rangeFire`, `damage`, `speed`, `price`, `name`, `title`, `image`) VALUES
-(1, 1000, 10, 10, 8, 300, 'GUN_LIGHT', '', 'Tanks/gun1.png'),
+(1, 1000, 10, 10000, 8, 300, 'GUN_LIGHT', '', 'Tanks/gun1.png'),
 (2, 1500, 12, 20, 5, 500, 'GUN_HEAVY', '', 'Tanks/gun2.png');
 
 -- --------------------------------------------------------
@@ -362,6 +332,17 @@ CREATE TABLE `objects` (
   `type` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Дамп данных таблицы `objects`
+--
+
+INSERT INTO `objects` (`id`, `x`, `y`, `count`, `type`) VALUES
+(4, 14, 10, 3, 1),
+(5, 13, 10, 5, 1),
+(6, 13, 10, 12, 1),
+(7, 17, 10, 16, 1),
+(8, 17, 11, 20, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -369,12 +350,19 @@ CREATE TABLE `objects` (
 --
 
 CREATE TABLE `result` (
-  `Id` int(11) NOT NULL,
-  `name` varchar(16) NOT NULL,
-  `frags` int(11) NOT NULL,
-  `teamkiller` int(11) NOT NULL,
-  `death` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `killed_id` int(11) NOT NULL,
+  `enemy` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `result`
+--
+
+INSERT INTO `result` (`id`, `user_id`, `killed_id`, `enemy`) VALUES
+(6, 2, 2, 0),
+(7, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -410,9 +398,9 @@ CREATE TABLE `sprite_map` (
   `name` varchar(16) NOT NULL,
   `x` int(11) NOT NULL,
   `y` int(11) NOT NULL,
-  `team` int(11) NOT NULL DEFAULT '0' COMMENT '0 - no team, 1 - red, 2 - blue',
-  `width` int(11) NOT NULL DEFAULT '50',
-  `height` int(11) NOT NULL DEFAULT '50'
+  `team` int(11) NOT NULL DEFAULT 0 COMMENT '0 - no team, 1 - red, 2 - blue',
+  `width` int(11) NOT NULL DEFAULT 50,
+  `height` int(11) NOT NULL DEFAULT 50
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
@@ -458,16 +446,16 @@ CREATE TABLE `tanks` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `team` int(11) NOT NULL,
-  `x` int(11) NOT NULL DEFAULT '0',
-  `y` int(11) NOT NULL DEFAULT '0',
+  `x` int(11) NOT NULL DEFAULT 0,
+  `y` int(11) NOT NULL DEFAULT 0,
   `direction` varchar(16) NOT NULL DEFAULT 'up',
-  `reloadTimeStamp` bigint(11) NOT NULL DEFAULT '0',
+  `reloadTimeStamp` bigint(11) NOT NULL DEFAULT 0,
   `hp` int(11) NOT NULL,
   `cargo` int(11) NOT NULL,
   `hullType` int(11) NOT NULL,
   `gunType` int(11) NOT NULL,
   `shassisType` int(11) NOT NULL,
-  `moveTimeStamp` bigint(20) NOT NULL DEFAULT '0',
+  `moveTimeStamp` bigint(20) NOT NULL DEFAULT 0,
   `nuke` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -476,8 +464,7 @@ CREATE TABLE `tanks` (
 --
 
 INSERT INTO `tanks` (`id`, `user_id`, `team`, `x`, `y`, `direction`, `reloadTimeStamp`, `hp`, `cargo`, `hullType`, `gunType`, `shassisType`, `moveTimeStamp`, `nuke`) VALUES
-(539, 1, 1, 0, 1, 'up', 0, 20, 20, 1, 1, 1, 0, 0),
-(540, 3, 1, 4, 7, 'down', 1575900306192, 20, 20, 1, 1, 1, 1575900312664, 0);
+(571, 2, 2, 17, 8, 'down', 1575956666005, 30, 30, 2, 2, 2, 1575956665562, 0);
 
 -- --------------------------------------------------------
 
@@ -511,7 +498,7 @@ CREATE TABLE `users` (
   `login` varchar(16) NOT NULL,
   `password` varchar(32) NOT NULL,
   `token` varchar(32) DEFAULT NULL,
-  `money` int(11) NOT NULL DEFAULT '1200'
+  `money` int(11) NOT NULL DEFAULT 1200
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
@@ -519,8 +506,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `login`, `password`, `token`, `money`) VALUES
-(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', 'c0e99b804b68fb5e2e3017ab7dc444cd', 8150),
-(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '474e8c801944e9f8ad3ff57a33f65262', 233800),
+(1, 'vasya', '4a2d247d0c05a4f798b0b03839d94cf0', '0240dc475f616e8df1535954153a73eb', -9350),
+(2, 'petya', 'cec9aeba49c4225fc27cfc04914f3903', '05715c5af40fff0d1006dc8cf4a290a8', 225800),
 (3, 'megaclen1', 'e5c127eeed73351142922b1eaeb36754', '2a29672ef466805a81d099b2f908c979', -9700);
 
 --
@@ -585,8 +572,7 @@ ALTER TABLE `objects`
 -- Индексы таблицы `result`
 --
 ALTER TABLE `result`
-  ADD PRIMARY KEY (`Id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Индексы таблицы `shassis`
@@ -633,25 +619,25 @@ ALTER TABLE `battle`
 -- AUTO_INCREMENT для таблицы `booms`
 --
 ALTER TABLE `booms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT для таблицы `building`
 --
 ALTER TABLE `building`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT для таблицы `bullets`
 --
 ALTER TABLE `bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT для таблицы `field`
 --
 ALTER TABLE `field`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2013;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2336;
 
 --
 -- AUTO_INCREMENT для таблицы `gun`
@@ -675,13 +661,13 @@ ALTER TABLE `nuke`
 -- AUTO_INCREMENT для таблицы `objects`
 --
 ALTER TABLE `objects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `result`
 --
 ALTER TABLE `result`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT для таблицы `shassis`
@@ -699,7 +685,7 @@ ALTER TABLE `sprite_map`
 -- AUTO_INCREMENT для таблицы `tanks`
 --
 ALTER TABLE `tanks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=541;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=572;
 
 --
 -- AUTO_INCREMENT для таблицы `team`

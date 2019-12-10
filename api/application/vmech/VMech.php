@@ -189,8 +189,9 @@ class VMech {
 					$damage = $gun->damage;
 					$tank->hp -= $damage;
 					if($tank->hp <= 0){
-						$this->db->deleteTankById($tank->id);
 						$killerTank = $this->db->getTankByUserId($userId);
+						$this->db->deleteTankById($tank->id);
+						$this->db->addResult($tank, $killerTank);
 						if ($tank->team == $killerTank->team) {
 							$this->db->updateUserMoneyById($userId, -intval($battle->moneyTank));
 						} else {
@@ -260,6 +261,7 @@ class VMech {
 		$scene->booms = $this->db->getBooms();
 		$scene->userMoney = $this->db->getUserById($userId)->money;
 		$scene->objects = $this->db->getObjects();
+		$scene->battle = $this->db->getBattle();
 		return $scene;
 	}
 
@@ -360,7 +362,7 @@ class VMech {
 				$tanks = $this->db->getTanks();
 				$buildings = $this->db->getBuildings();
 				$objects = $this->db->getObjects();
-				$this->db->deleteTankById($tank->id);
+				//$this->db->deleteTankById($tank->id);
 				foreach ($field as $wall){
 					$distance = $this->calcDistance($wall->x, $wall->y,
 													$tank->x, $tank->y);
@@ -384,6 +386,7 @@ class VMech {
 							$this->db->updateTankById($t->id, $hp);
 						} else {
 							$this->db->deleteTankById($t->id);
+							$this->db->addResult($t, $tank);
 						}
 					}
 				}
@@ -430,7 +433,7 @@ class VMech {
 		// нарандомить блоки 
 		$this->randomBlock($battle);
 		// нарандомить базы
-		$this->randomBase();
+		$this->randomBase($battle);
 	}
 	
 	private function randomBlock($battle) {
@@ -444,7 +447,7 @@ class VMech {
 		}
 	}
 
-	private function randomBase(){
+	private function randomBase($battle){
         $mapSize = $this->db->getBattle();
         $fieldX = $mapSize->fieldX-2;
         $fieldY = $mapSize->fieldY-2;
@@ -465,8 +468,8 @@ class VMech {
         $x2 = $fieldX - $x1;
         $y2 = $fieldY - $y1;
 
-        $this->db->addBuilding(1, $x1, $y1, 100, 2, 2, "base");
-        $this->db->addBuilding(2, $x2, $y2, 100, 2, 2, "base");
+        $this->db->addBuilding(1, $x1, $y1, $battle->healthBase, 2, 2, "base");
+        $this->db->addBuilding(2, $x2, $y2, $battle->healthBase, 2, 2, "base");
     }
 
 	private function getField($fieldX, $fieldY, $field) {

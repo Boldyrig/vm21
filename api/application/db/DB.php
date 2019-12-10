@@ -317,4 +317,12 @@ class DB {
         return true;
     }
 
+    public function addResult($tank, $killerTank) {
+        $enemy = ($tank->team === $killerTank->team) ?  0 : 1;
+        $query = 'INSERT INTO result (user_id, killed_id, enemy)
+                  VALUES ('.$killerTank->user_id.', '.$tank->user_id.', '.$enemy.')';
+        $this->conn->query($query);
+        return true;
+    }
+
 }
