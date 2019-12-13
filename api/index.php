@@ -1,5 +1,5 @@
 <?php
-error_reporting(1);
+error_reporting(-1);
 header('Access-Control-Allow-Origin: *');
 require_once('application/Application.php');
 
@@ -20,6 +20,7 @@ function router($params) {
             case 'checkEndGame': return $app->checkEndGame();
             case 'getConstructor': return $app->getConstructor();
             case 'joinGame': return $app->joinGame($params);
+            case 'boom': return $app->boom($params);
             default: return false;
         }
     }
