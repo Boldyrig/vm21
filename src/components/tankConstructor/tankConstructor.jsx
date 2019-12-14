@@ -7,11 +7,13 @@ class TankConstructor extends React.Component {
         this.addTankRequest = props.addTankRequest;
         this.setConstructed = props.setConstructed;
         this.getConstructor = props.getConstructor;
+        this.getRating = props.getRating;
         this.constructorCB = props.constructorCB;
         this.constructor = null;
         this.loadConstructor();
         this.money = props.money;
         this.setErrors = props.setErrors;
+        this.getRating(this.printRating);
         this.state = {
             isLoaded: false
         }
@@ -80,9 +82,27 @@ class TankConstructor extends React.Component {
         return React.createElement('div', {className: 'tankConstructor'}, arr);
     }
 
+    printRating(rating) {
+
+        console.log(rating);
+
+        let arr = [];
+        for(let i = 0; i < rating.length; i++){
+            arr.push(`<div>
+                <label>${rating[i].login}</label>   
+                <label>${rating[i].kills}</label>
+                <label>${rating[i].deaths}</label>   
+            </div>`);
+        }
+        document.querySelector('.rating').innerHTML = arr.join('');
+    }
+    
     render() {
         return (<div key='tankConstructor'>
             { this.constructor ? this.printConstructor() : null }
+            
+            <div className='rating'></div>
+
             <div className='menu__btn'><div className='start__btn' onClick={ () => {
                 const tankParams = this.buildTank();
                 if (tankParams) {
@@ -90,7 +110,7 @@ class TankConstructor extends React.Component {
                     this.setConstructed(true);
                 }
             }}><a>Start</a></div></div>
-            </div>);
+        </div>);
     }
 }
 export default TankConstructor;

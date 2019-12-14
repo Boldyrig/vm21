@@ -10,6 +10,7 @@ export default class Game extends React.Component {
         this.setAuth = props.setAuth;
         this.updateRequest = props.updateRequest;
         this.stopRequest = props.stopRequest;
+        this.getRating = props.getRating;
         this.addTankRequest = props.addTankRequest;
         this.appState = props.appState();
         this.getConstructor = props.getConstructor;
@@ -40,13 +41,15 @@ export default class Game extends React.Component {
 
         window.document.onkeydown = event => {
             switch (event.keyCode) {
-                case 65: this.move('left'); break;//a
-                case 37: this.move('left'); break;//стрелка влево
-                case 68: this.move('right'); break;//d
+                case 65: //a
+                case 37: //стрелка влево
+                    this.move('left'); 
+                break;
+                case 68: //d
                 case 39: this.move('right'); break;//стрелка вправо
-                case 87: this.move('up'); break;//w
+                case 87: //w
                 case 38: this.move('up'); break;//стрелка вверх
-                case 83: this.move('down'); break;//s
+                case 83: //s
                 case 40: this.move('down'); break;//стрелка вниз
                 case 32: this.shoot(); break;
                 case 78: this.boomNuke(); break; //бомбануть
@@ -167,21 +170,17 @@ export default class Game extends React.Component {
                 }
             }
             for(let i = 0; i < booms.length; i++){
-                if(booms[i].timeLife == 4){
-                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_4');
-
-                }
-                if(booms[i].timeLife == 3){
-                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_3');
-
-                }
-                if(booms[i].timeLife == 2){
-                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_2');
-
-                }
-                if(booms[i].timeLife == 1){
-                    this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, booms[i].x*50, booms[i].y*50, 50, 50, sprite_map, 'FIRE_1');
-
+                if (booms[i].timeLife == 4 || booms[i].timeLife == 3 ||
+                    booms[i].timeLife == 2 || booms[i].timeLife == 1
+                ) {
+                    this.canvas.drawImageFromSpriteMap(
+                        this.SPRITE.SPRITE_MAP, 
+                        booms[i].x*50, 
+                        booms[i].y*50, 
+                        50, 
+                        50, 
+                        sprite_map, 
+                        `FIRE_${booms[i].timeLife}`);
                 }
             }
         }
@@ -210,6 +209,7 @@ export default class Game extends React.Component {
                         addTankRequest = { (data) => this.addTankRequest(data)} 
                         setConstructed = { (val) => this.setConstructed(val)}
                         getConstructor = {() => this.getConstructor()}
+                        getRating = {(cb) => this.getRating(cb)}
                         money = {this.appState.money}
                         setErrors = {this.setErrors}
                         constructorCB = {constructor => this.constructorCB(constructor)}/>

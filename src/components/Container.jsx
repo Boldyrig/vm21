@@ -51,6 +51,7 @@ class Container extends React.Component {
               stopRequest = {() => this.server.stopUpdate()}
               addTankRequest = {val => this.server.addTank(val)}
               appState = {() => this.appState}
+              getRating = {(cb) => this.server.getRating(cb)}
               getConstructor = {() => this.server.getConstructor()}
               setErrors = {err => this.setErrors(err)}
               move={(direction) => this.server.move(direction)}

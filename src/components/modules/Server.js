@@ -94,9 +94,13 @@ export default class Server {
         }
     }
 
-    async getConstructor() {
-        const constructor = await this.send('getConstructor');
-        return constructor;
+    getConstructor() {
+        return this.send('getConstructor');
+    }
+
+    async getRating(cb) {
+        const result = await this.send('getRating');
+        cb(result);
     }
 
     joinGame(tankParams) {
