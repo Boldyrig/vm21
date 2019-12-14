@@ -21,6 +21,7 @@ function router($params) {
             case 'getConstructor': return $app->getConstructor();
             case 'joinGame': return $app->joinGame($params);
             case 'boom': return $app->boom($params);
+            case 'getRating': return $app->getRating($params);
             default: return false;
         }
     }

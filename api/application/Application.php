@@ -110,4 +110,8 @@ class Application {
     public function getConstructor() {
         return $this->vMech->getConstructor();
     }
+
+    public function getRating() {
+        return $this->vMech->getRating();
+    }
 }

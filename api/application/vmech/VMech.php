@@ -17,6 +17,10 @@ class VMech {
 		return $array;
 	}
 
+	public function getRating()	{
+		return $this->db->getRating();
+	}
+
 	// взять танк по id
 	private function getTankById($id, $tanks) {
 		for ($i = 0; $i < count($tanks); $i++) {
@@ -38,10 +42,10 @@ class VMech {
 	}
 
 	// взять пулю по (х, у)
-	private function getBulletByXY($x, $y) {
-		for ($i = 0; $i < count($this->bullets); $i++) {
-			if ($x == $this->bullets[$i]->x && $y == $this->bullets[$i]->y) {
-				return $this->bullets[$i];
+	private function getBulletByXY($x, $y, $bullet) {
+		for ($i = 0; $i < count($bullet); $i++) {
+			if ($bullet[$i]->x && $y == $bullet[$i]->y) {
+				return $bullet[$i];
 			}
 		}
 		return null;
@@ -191,7 +195,7 @@ class VMech {
 					if($tank->hp <= 0){
 						$killerTank = $this->db->getTankByUserId($userId);
 						$this->db->deleteTankById($tank->id);
-						$this->db->addResult($tank, $killerTank);
+						$this->db->addResult($tank, $bullet);
 						if ($tank->team == $killerTank->team) {
 							$this->db->updateUserMoneyById($userId, -intval($battle->moneyTank));
 						} else {
@@ -347,7 +351,7 @@ class VMech {
 				$y = $tank->y;
 				$x = $tank->x;
 				$this->db->updateReloadTimeStamp($tank->id, $currentTime); // изменить время перезарядки у танка
-				return $this->db->addBullet($x, $y, $tank->direction, $gun->id, $gun->rangeFire); // добавить новую пулю в массив пуль
+				return $this->db->addBullet($userId, $x, $y, $tank->direction, $gun->id, $gun->rangeFire); // добавить новую пулю в массив пуль
 			}
 		}
 		return false;

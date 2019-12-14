@@ -158,11 +158,12 @@ class DB {
         $this->conn->query($query);
         return true;
     }
-	public function addBullet($x, $y, $direction, $type, $rangeBullet){
+	public function addBullet($userId, $x, $y, $direction, $type, $rangeBullet){
 		$query = 'INSERT INTO bullets 
-                (x, y, direction, type, rangeBullet)
+                (user_id, x, y, direction, type, rangeBullet)
 				VALUES 
-                ('.$x.', 
+                ('.$userId.',
+                '.$x.', 
                  '.$y.',
 				 "'.$direction.'",
 				 '.$type.',
@@ -317,7 +318,26 @@ class DB {
         return true;
     }
 
-    public function addResult($tank, $killerTank) {
+    public function getRating() { 
+        $query = 'SELECT u.login, r.kills, rd.deaths
+                  FROM 
+                      users AS u, 
+                      (SELECT u.id, count(r.killed_id) AS kills 
+                      FROM users AS u 
+                          INNER JOIN result AS r ON u.id = r.user_id AND r.enemy = 1
+                      GROUP BY u.id) AS r,
+                      (SELECT u.id, count(rd.user_id) AS deaths
+                      FROM users AS u 
+                          INNER JOIN result AS rd ON u.id = rd.killed_id
+                      GROUP BY u.id) AS rd
+                  WHERE u.id = r.id AND u.id = rd.id';
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+
+    public function addResult($tank, $bullet) {
+        $killerTank = $this->getTankByUserId($bullet->user_id);
         $enemy = ($tank->team === $killerTank->team) ?  0 : 1;
         $query = 'INSERT INTO result (user_id, killed_id, enemy)
                   VALUES ('.$killerTank->user_id.', '.$tank->user_id.', '.$enemy.')';
