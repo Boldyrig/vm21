@@ -20,7 +20,10 @@ export default class Server {
         const answer = await response.json();
         return (answer && answer.result === 'ok') ? 
                 answer.data : 
-                (method !== 'update' && method !== 'move' && method !== 'shoot') ? 
+                (method !== 'update' && 
+                 method !== 'move' && 
+                 method !== 'shoot' && 
+                 method !== 'boom') ? 
                     this.error(answer.error) :
                     false;
     }
@@ -67,6 +70,7 @@ export default class Server {
             this.startUpdate();
         }
     }
+    
     stopUpdate() {
         this.isUpdateScene = false;
     }
@@ -79,7 +83,7 @@ export default class Server {
         return this.send('checkEndGame');
     }
 
-    shoot(id) {
+    shoot() {
         return this.send('shoot');
     }
 
@@ -91,9 +95,12 @@ export default class Server {
         }
     }
 
-    async getConstructor() {
-        const constructor = await this.send('getConstructor');
-        return constructor;
+    getConstructor() {
+        return this.send('getConstructor');
+    }
+
+    getRating() {
+        return this.send('getRating');
     }
 
     joinGame(tankParams) {
@@ -111,5 +118,9 @@ export default class Server {
             this.startUpdate();
         }
         return result;
+    }
+
+    boomNuke() {
+        return this.send('boom');
     }
 }
