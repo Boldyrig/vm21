@@ -45,10 +45,10 @@ class Registr extends React.Component {
                         <input className='input__password' type='password' id='password_Repit' placeholder='Confirm password'></input><br />
                         <div className='menu__btn'>
                             <div className='green__btn' onClick={() => this.registration()}>
-                                <a>Sign up</a>
+                                <label id='button'>Sign up</label>
                             </div>
                             <div className='blue__btn' onClick={() => this.logout()}>
-                                <a>Back</a>
+                                <label id='button'>Back</label>
                             </div>
                         </div>
                     </div>

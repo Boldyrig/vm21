@@ -70,6 +70,7 @@ export default class Server {
             this.startUpdate();
         }
     }
+    
     stopUpdate() {
         this.isUpdateScene = false;
     }
@@ -98,9 +99,8 @@ export default class Server {
         return this.send('getConstructor');
     }
 
-    async getRating(cb) {
-        const result = await this.send('getRating');
-        cb(result);
+    getRating() {
+        return this.send('getRating');
     }
 
     joinGame(tankParams) {

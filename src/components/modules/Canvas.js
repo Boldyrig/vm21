@@ -10,7 +10,7 @@ export default class Canvas {
         if(this.canvas){
             this.context = this.canvas.getContext('2d');
             //Настройки размера окна
-            this.canvas.width = options.width || 1000;
+            this.canvas.width = options.width || 2000;
             this.canvas.height = options.height || 1000;
         }
     }
@@ -53,6 +53,8 @@ export default class Canvas {
                     dx = x + width;
                     dy = y;
                     break;
+                default: 
+                    break;
             }
             this.context.translate(dx, dy);
             this.context.rotate(angle);
@@ -89,6 +91,8 @@ export default class Canvas {
                     angle = Math.PI/2;
                     dx = x + width;
                     dy = y;
+                    break;
+                default: 
                     break;
             }
             this.context.translate(dx, dy);

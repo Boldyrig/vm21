@@ -48,10 +48,10 @@ class Auth extends React.Component {
                         <input className='input__password' type='password' id='password' placeholder='Password'></input><br />
                         <div className='menu__btn'>
                             <div className='green__btn' onClick={() => this.login()} alt="green">
-                            <a>Sign in</a>
+                            <label id='button'>Sign in</label>
                             </div>
                             <div className='blue__btn' onClick={() => this.registration()}>
-                            <a>Sigh up</a>
+                            <label id='button'>Sigh up</label>
                             </div>
                         </div>                   
                     </div>   
