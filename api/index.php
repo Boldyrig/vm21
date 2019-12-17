@@ -17,7 +17,6 @@ function router($params) {
             case 'move': return $app->move($params);
             case 'shoot': return $app->shoot($params);
             case 'update': return $app->updateScene($params);
-            case 'checkEndGame': return $app->checkEndGame();
             case 'getConstructor': return $app->getConstructor();
             case 'joinGame': return $app->joinGame($params);
             case 'boom': return $app->boom($params);

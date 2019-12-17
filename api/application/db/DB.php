@@ -128,7 +128,7 @@ class DB {
 
     public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
 	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
-	public function getBaseById($id){ return $this->getDataById('building', id); }
+	public function getBaseById($id){ return $this->getDataById('building', $id); }
 
     public function getBuilding($team){return $this->getDataByTeam('building',$team);}
 
@@ -187,8 +187,8 @@ class DB {
         return true;
     }
     
-    public function addBoom($x, $y){
-		$query = 'INSERT INTO booms (x, y) VALUES ('.$x.', '.$y.')';
+    public function addBoom($x, $y, $timeLife, $type){
+		$query = 'INSERT INTO booms (x, y, timeLife, type) VALUES ('.$x.', '.$y.', '.$timeLife.', "'.$type.'")';
 		$this->conn->query($query);
         return true;
     }
@@ -318,7 +318,32 @@ class DB {
         return true;
     }
 
-    public function getRating() { 
+    public function getKills() {
+        $query = 'SELECT user_id AS id, count(user_id) as kills FROM result 
+                    INNER JOIN users ON user_id = users.id
+                  GROUP BY users.id';
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+    public function getDeaths() {
+        $query = 'SELECT user_id AS id, count(killed_id) as deaths FROM result 
+                    INNER JOIN users ON user_id = users.id
+                  GROUP BY users.id';
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+    public function getFriendFire() {
+        $query = 'SELECT user_id AS id, count(killed_id) as friendFires FROM result
+	                INNER JOIN users ON user_id = users.id
+                  WHERE enemy = 0
+                  GROUP BY users.id';
+        $result = $this->conn->query($query);
+        return $this->allRecords($result);
+    }
+
+    public function getRating() {
         $query = 'SELECT u.login, r.kills, rd.deaths
                   FROM 
                       users AS u, 
@@ -336,8 +361,8 @@ class DB {
     }
 
 
-    public function addResult($tank, $bullet) {
-        $killerTank = $this->getTankByUserId($bullet->user_id);
+    public function addResult($tank, $userId) {
+        $killerTank = $this->getTankByUserId($userId);
         $enemy = ($tank->team === $killerTank->team) ?  0 : 1;
         $query = 'INSERT INTO result (user_id, killed_id, enemy)
                   VALUES ('.$killerTank->user_id.', '.$tank->user_id.', '.$enemy.')';
