@@ -362,12 +362,15 @@ class DB {
 
 
     public function addResult($tank, $userId) {
-        $killerTank = $this->getTankByUserId($userId);
-        $enemy = ($tank->team === $killerTank->team) ?  0 : 1;
-        $query = 'INSERT INTO result (user_id, killed_id, enemy)
-                  VALUES ('.$killerTank->user_id.', '.$tank->user_id.', '.$enemy.')';
-        $this->conn->query($query);
-        return true;
+        if (isset($tank->user_id) && $userId) {
+            $killerTank = $this->getTankByUserId($userId);
+            $enemy = ($tank->team === $killerTank->team) ?  0 : 1;
+            $query = 'INSERT INTO result (user_id, killed_id, enemy)
+                      VALUES ('.$killerTank->user_id.', '.$tank->user_id.', '.$enemy.')';
+            $this->conn->query($query);
+            return true;
+        }
+        return false;
     }
 
 }

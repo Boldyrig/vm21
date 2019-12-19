@@ -1,4 +1,7 @@
 <?php
+
+require_once('ai/AI.php');
+
 class VMech {
     function __construct($db) {
 		$this->db = $db;
@@ -199,7 +202,10 @@ class VMech {
 					$tank->hp -= $damage;
 					if($tank->hp <= 0){
 						$killerTank = $this->db->getTankByUserId($userId);
-						$this->db->addResult($tank, $bullet->user_id);
+						// результат бота НЕ записываем
+						if ($bullet->user_id) {
+							$this->db->addResult($tank, $bullet->user_id);
+						}
 						$this->db->deleteTankById($tank->id);
 						if ($tank->team == $killerTank->team) {
 							$this->db->updateUserMoneyById($userId, -intval($battle->moneyTank));
@@ -275,7 +281,7 @@ class VMech {
 	}
 
 	// переместить танк
-    public function move($userId, $direction) {
+    public function move($userId, $direction, $tank = null) {
 		$tanks = $this->db->getTanks(); 
 		$buildings = $this->db->getBuildings();
 		$tank = $this->getTankById($userId, $tanks);
@@ -345,8 +351,8 @@ class VMech {
 	}
 
 	// выстрел (добавление пули в массив пулей)
-	public function shoot($userId) {
-		$tank = $this->db->getTankByUserId($userId); // взять танк по user_id
+	public function shoot($userId, $tank = null) {
+		$tank = ($tank) ? $tank : $this->db->getTankByUserId($userId); // взять танк по user_id
 		if ($tank) {
 			$gun = $this->db->getGun($tank->gunType); // взять его орудие		
 			// проверить прошло ли время перезарядки
@@ -530,6 +536,28 @@ class VMech {
 		return $points[$rnd];
 	}
 
+	private function calcAi() {
+		$battle = $this->db->getBattle(); // взять битву из БД
+		$field = $this->db->getField(); // взять блоки
+		$tanks = $this->db->getTanks(); // взять танки
+		$ai = new AI($battle, $field, $tanks);
+		foreach ($tanks as $tank) {
+			if (!isset($tank->user_id)) { // если танк - бот
+				$tankCommand = $ai->updateTank($tank);
+				if ($tankCommand) {
+					if ($tankCommand['command'] === 'move') {
+						$this->move(null, $tankCommand['direction'], $tank);
+					}
+					if ($tankCommand['command'] === 'shoot') {
+						$tank->direction = $tankCommand['direction'];
+						
+						$this->shoot(null, $tank);
+					}
+				}
+			}
+		}
+	}
+
 	// обновить и вернуть сцену
 	public function updateScene($userId) {
 		if ($this->db->isTankExists($userId)) {
@@ -543,6 +571,7 @@ class VMech {
 					$this->db->updateBattleTimeStamp($battle->id, $currentTime);
 					$this->updateBooms();
 					$this->updateBullets($userId);// сдвигаем пули
+					$this->calcAi(); // подвигать ботов
 					return $this->getScene($battle, $userId);
 				}
 				return false;
