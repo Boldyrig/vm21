@@ -127,7 +127,10 @@ class DB {
     public function getSpriteMap(){ return $this->getAllData('sprite_map'); }
 
     public function getSpeed($shassisType){ return $this->getDataById('shassis', $shassisType); }
-	public function getTankByUserId($userId){return $this->getDataByUserId('tanks', $userId); }
+	public function getTankByUserId($userId){
+        
+        return $this->getDataByUserId('tanks', $userId); 
+    }
 	public function getBaseById($id){ return $this->getDataById('building', $id); }
 
     public function getBuilding($team){return $this->getDataByTeam('building',$team);}
@@ -162,7 +165,7 @@ class DB {
 		$query = 'INSERT INTO bullets 
                 (user_id, x, y, direction, type, rangeBullet)
 				VALUES 
-                ('.$userId.',
+                ('.($userId ? $userId : 'NULL').',
                 '.$x.', 
                  '.$y.',
 				 "'.$direction.'",
@@ -251,7 +254,7 @@ class DB {
     public function deleteBuildingById($buildingId){return $this->DeleteById('building', $buildingId); }
     public function deleteTankById($tankId){return $this->DeleteById('tanks', $tankId); }
     public function deleteBoomById($boomId){return $this->DeleteById('booms', $boomId); }
-    public function deleteObject($objectId){return $this->deleteAllData('objects',$objectId);}
+    public function deleteObjectById($objectId){return $this->DeleteById('objects',$objectId);}
     public function deleteAllData($tableName){
         $query = 'DELETE FROM '.$tableName;
         $this->conn->query($query);
@@ -298,8 +301,9 @@ class DB {
         $this->conn->query($query);
         return true;
     }
+    
     public function updateHpBase($hp,$team){
-        $query = 'UPDATE building SET hp = hp + '.$hp.' WHERE team='.$team;
+        $query = 'UPDATE building SET hp = '.$hp.' WHERE team='.$team;
         $this->conn->query($query);
         return true;
     }

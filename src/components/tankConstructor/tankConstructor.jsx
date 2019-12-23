@@ -136,9 +136,9 @@ class TankConstructor extends React.Component {
 
     render() {
         return (<div key=''>
-        { this.rating ? this.printRating() : <img key='loading1' src={require('../../assets/img/Loading/loading.gif')} alt='none'/> }
+        { this.rating ? this.printRating() : <img className='rating' key='loading1' src={require('../../assets/img/Loading/loading.gif')} alt='none'/> }
         <div key='tankConstructor'>
-            { this.constructor ? this.printConstructor() : <img key='loading2' src={require('../../assets/img/Loading/loading.gif')} alt='none'/> }
+            { this.constructor ? this.printConstructor() : <img className='tankConstructor' key='loading2' src={require('../../assets/img/Loading/loading.gif')} alt='none'/> }
             <div className='menu__btn'><div className='start__btn' onClick={ () => {
                 const tankParams = this.buildTank();
                 if (tankParams) {

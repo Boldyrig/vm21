@@ -120,7 +120,7 @@ export default class Game extends React.Component {
             if(users[i].token === this.appState.token) user = users[i];
         }
         for(let i = 0; i < tanks.length; i ++) {//взять танк текущего юзера
-            if(tanks[i].user_id === user.id) tank = tanks[i];
+            if(tanks[i] && user && tanks[i].user_id === user.id) tank = tanks[i];
         }
         for (let j = 0; j < field.length; j++){
             for (let i = 0; i < field[j].length; i++){
@@ -135,7 +135,7 @@ export default class Game extends React.Component {
                 this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_RED');
             if (buildings[i].team === '2')
                 this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, buildings[i].x*50, buildings[i].y*50, 100, 100, sprite_map, 'BASE_BLUE');
-            if(buildings[i].team === tank.team){//отобразить здоровье своей базы
+            if(tank && buildings[i].team === tank.team){//отобразить здоровье своей базы
                 let maxValue = battle.healthBase;
                 let currentValue = buildings[i].hp;
                 let value = 100 * currentValue / maxValue;
@@ -145,6 +145,7 @@ export default class Game extends React.Component {
         }
         for(let i = 0; i < objects.length; i ++) {
             this.canvas.drawImageFromSpriteMap(this.SPRITE.SPRITE_MAP, objects[i].x*50, objects[i].y*50, 50, 50, sprite_map, 'LOOT');
+            this.canvas.drawText('loot: ' + objects[i].count, objects[i].x * 50, objects[i].y * 50, '#ffffff');//count
         }
         for (let i = 0; i < tanks.length; i++) {
             if(tanks[i]){
@@ -177,8 +178,12 @@ export default class Game extends React.Component {
 
                 }
                 for(let j = 0; j < users.length; j++) {
-                    if(tanks[i].user_id === users[j].id) {
-                        this.canvas.drawText(users[j].login, tanks[i].x * 50, tanks[i].y * 50, '#ffffff');//login
+                    if(tanks[i].user_id) {
+                        if(tanks[i].user_id === users[j].id) {
+                            this.canvas.drawText(users[j].login, tanks[i].x * 50, tanks[i].y * 50, '#ffffff');//login
+                        }
+                    } else { 
+                        this.canvas.drawText('bot', tanks[i].x * 50, tanks[i].y * 50, '#ffffff');//bot 
                     }
                     for(let hull in hullTypes){//отобразить здоровье танков
                         if(hullTypes[hull].id === tanks[i].hullType){
